@@ -8,6 +8,8 @@
         "regenerator-runtime": "^0.14.1",
         "sass": "^1.83.0",
         "sass-loader": "^16.0.1",
+        "ts-loader": "^9.0.0",
+        "typescript": "^5.7.2",
         "vue-loader": "^17.4.2",
         "vue-template-compiler": "^2.7.16",
         "webpack": "^5.97.1",
