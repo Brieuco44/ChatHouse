@@ -1,5 +1,7 @@
 doctrine:
     dbal:
+        types:
+            uuid: Symfony\Bridge\Doctrine\Types\UuidType
         connections:
             clickhouse:
                 host: '%env(CLICKHOUSE_HOST)%'

@@ -10,7 +10,7 @@
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.3",
-        "friendsofdoctrine/dbal-clickhouse": "v3.0.1",
+        "friendsofdoctrine/dbal-clickhouse": "^3.0",
         "symfony/asset": "7.0.*",
         "symfony/console": "v7.2.1",
         "symfony/dependency-injection": "v7.2.0",
@@ -20,7 +20,9 @@
         "symfony/framework-bundle": "v7.2.1",
         "symfony/http-kernel": "v7.2.1",
         "symfony/runtime": "v7.2.0",
+        "symfony/security-bundle": "7.*",
         "symfony/twig-bundle": "7.0.*",
+        "symfony/uid": "7.*",
         "symfony/webpack-encore-bundle": "^2.2",
         "symfony/yaml": "v7.2.0",
         "twig/extra-bundle": "^2.12|^3.0",
@@ -72,7 +74,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "7.0.*"
+            "require": "7.*"
         }
     },
     "require-dev": {
