@@ -1,41 +1,49 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-
-defineProps<{ msg: string }>()
-
-const count = ref(0)
-</script>
-
 <template>
-  <h1>{{ msg }}</h1>
-
-  <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
-    <p>
-      Edit
-      <code>components/HelloWorld.vue</code> to test HMR
-    </p>
+  <div>
+    <h1 class="text-xl font-bold">Messagerie Instantanée</h1>
+    <div class="chat-window">
+      <div v-for="msg in messages" :key="msg.id" class="chat-message">
+        <div :class="msg.type === 'sent' ? 'chat-bubble chat-end' : 'chat-bubble chat-start'">
+          {{ msg.content }}
+        </div>
+      </div>
+    </div>
+    <input
+      type="text"
+      v-model="newMessage"
+      @keyup.enter="sendMessage"
+      placeholder="Écrire un message..."
+      class="input input-bordered w-full"
+    />
   </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Learn more about IDE Support for Vue in the
-    <a
-      href="https://vuejs.org/guide/scaling-up/tooling.html#ide-support"
-      target="_blank"
-      >Vue Docs Scaling up Guide</a
-    >.
-  </p>
-  <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
 </template>
 
-<style scoped>
-.read-the-docs {
-  color: #888;
-}
-</style>
+<script>
+export default {
+  data() {
+    return {
+      ws: null,
+      messages: [],
+      newMessage: "",
+    };
+  },
+  methods: {
+    connectWebSocket() {
+      this.ws = new WebSocket("ws://localhost:8000/ws");
+      this.ws.onmessage = (event) => {
+        this.messages.push({ type: "received", content: event.data });
+      };
+    },
+    sendMessage() {
+      if (this.newMessage.trim() !== "") {
+        this.ws.send(this.newMessage);
+        this.messages.push({ type: "sent", content: this.newMessage });
+        this.newMessage = "";
+      }
+    },
+  },
+  mounted() {
+    this.connectWebSocket();
+  },
+};
+</script>
