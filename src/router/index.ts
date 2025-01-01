@@ -17,7 +17,13 @@ const routes: Array<RouteRecordRaw> = [
     path: "/",
     name: "Dashboard",
     component: () => import("@/pages/Dashboard.vue"),
-    meta: { requiresAuth: true },
+    // meta: { requiresAuth: true },
+  },
+  {
+    path: "/chat/:id",
+    name: "Chat",
+    component: () => import("@/pages/Chat.vue"),
+    // meta: { requiresAuth: true },
   },
 ];
 
