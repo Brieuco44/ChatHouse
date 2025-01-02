@@ -1,5 +1,9 @@
 <template>
   <div class="home-page h-screen flex flex-col p-4">
+    <!-- affiche lenom de l'utilisateur connecté -->
+    <div>
+      <h1 class="text-2xl font-bold mb-4">Bienvenue, {{ authStore.contact?.fullname }}</h1>
+    </div>
     <!-- Recherche de contacts -->
     <div class="search-bar mb-4">
       <input v-model="searchQuery" @input="searchContacts" type="text" placeholder="Rechercher des contacts..."
@@ -23,7 +27,7 @@
     <div class="contacts-list">
       <h2>Mes contacts :</h2>
       <ul>
-        <li v-for="contact in contacts" :key="contact.id" class="contact-item">
+        <li v-for="contact in listContacts" :key="contact.id" class="contact-item">
           <span>{{ contact.fullname }}</span>
           <button @click="openChat(contact.id)" class="chat-btn">Discussion</button>
           <button @click="removeContact(contact.id)" class="remove-btn">Supprimer</button>
@@ -37,14 +41,16 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useContactsStore } from "@/stores/contacts";
+import { useAuthStore } from "@/stores/auth";
 import { Contact } from "@/types/contacts";
-import { searchContactsAPI } from "@/api/contacts";
+// import { searchContactsAPI } from "@/api/contacts";
 
 export default {
-  name: "Home",
+  name: "dashboard",
   setup() {
     const contactsStore = useContactsStore();
     const router = useRouter();
+    const listContacts = ref<Contact[]>([]);
 
     const searchQuery = ref("");
     const searchResults = ref<Contact[]>([]);
@@ -55,7 +61,7 @@ export default {
 
     const searchContacts = async () => {
       if (searchQuery.value.trim()) {
-        searchResults.value = await searchContactsAPI(searchQuery.value);
+        // searchResults.value = await searchContactsAPI(searchQuery.value);
       } else {
         searchResults.value = [];
       }
@@ -82,6 +88,8 @@ export default {
       addContact,
       removeContact,
       openChat,
+      authStore: useAuthStore(),
+      listContacts : contactsStore.contacts,
     };
   },
 };

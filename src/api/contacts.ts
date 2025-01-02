@@ -1,17 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8000"; // URL de votre backend
+const API_URL = "https://apichathouse.enzopenisson.duckdns.org/contact"; // URL de votre backend
 
-// Rechercher des contacts par nom ou email
-export const searchContactsAPI = async (query: string) => {
-  const response = await axios.get(`${API_URL}/search_contacts`, {
-    params: { query },
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  });
-  return response.data;
-};
-
-// Assurez-vous que toutes les fonctions nécessaires sont exportées
 export const getContactsAPI = async () => {
   const response = await axios.get(`${API_URL}/get_contacts`, {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

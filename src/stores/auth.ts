@@ -1,21 +1,16 @@
 // src/stores/auth.ts
 import { defineStore } from "pinia";
 import axios from "axios";
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+import { Contact } from "@/types/contacts";
 
 interface AuthState {
-  user: User | null;
+  contact: Contact | null;
   token: string | null;
 }
 
 export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
-    user: null,
+    contact: null,
     token: localStorage.getItem("token"),
   }),
   actions: {
@@ -25,17 +20,16 @@ export const useAuthStore = defineStore("auth", {
       email: string;
       password: string;
     }): Promise<void> {
-      const response = await axios.post<{ token: string; user: User }>(
+      const response = await axios.post<{ token: string; contact: Contact }>(
         "https://apichathouse.enzopenisson.duckdns.org/auth/login",
         credentials
       );
+      
       this.token = response.data.token;
-      this.user = response.data.user;
-
       localStorage.setItem("token", this.token);
       axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
     },
-
+    
     // Register function
     async register(data: {
       fullname: string;
@@ -45,31 +39,44 @@ export const useAuthStore = defineStore("auth", {
       email: string;
     }): Promise<void> {
       await axios.post(
-        "https://apichathouse.enzopenisson.duckdns.org/auh/register",
+        "https://apichathouse.enzopenisson.duckdns.org/auth/register",
         data
       );
     },
-
+    
     // Logout function
     logout(): void {
-      this.user = null;
+      console.log(localStorage.getItem("token"));
+      this.contact = null;
       this.token = null;
       localStorage.removeItem("token");
       delete axios.defaults.headers.common["Authorization"];
     },
 
-    // Fetch user function
-    async fetchUser(): Promise<void> {
+    // Fetch contact function
+    async fetchContact(): Promise<void> {
       if (this.token) {
+        
         try {
-          const response = await axios.get<User>(
-            "https://apichathouse.enzopenisson.duckdns.org/auth/profile"
+          const response = await axios.get<Contact>(
+            "https://apichathouse.enzopenisson.duckdns.org/auth/profile",
+            {
+              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            }
           );
-          this.user = response.data;
+          console.log(response);
+          
+          this.contact = response.data;
+          
         } catch {
-          this.logout();
+          // this.logout();
+          
         }
       }
     },
+
+    isLogin(): boolean {
+      return !!localStorage.getItem("token");
+    }
   },
 });

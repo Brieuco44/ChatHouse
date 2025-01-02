@@ -1,4 +1,3 @@
-// src/router/index.ts
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 
@@ -23,7 +22,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/chat/:id",
     name: "Chat",
     component: () => import("@/pages/Chat.vue"),
-    // meta: { requiresAuth: true },
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -37,8 +36,8 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth && !authStore.token) {
     next({ name: "Login" });
   } else {
-    if (!authStore.user && authStore.token) {
-      await authStore.fetchUser();
+    if (!authStore.contact && authStore.token) {
+      await authStore.fetchContact();
     }
     next();
   }
