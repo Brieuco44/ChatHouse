@@ -14,7 +14,6 @@ export const useAuthStore = defineStore("auth", {
     token: localStorage.getItem("token"),
   }),
   actions: {
-
     // Login function
     async login(credentials: {
       email: string;
@@ -24,15 +23,16 @@ export const useAuthStore = defineStore("auth", {
         "https://apichathouse.enzopenisson.duckdns.org/auth/login",
         credentials
       );
-      
+
       this.token = response.data.token;
       localStorage.setItem("token", this.token);
       axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
     },
-    
+
     // Register function
     async register(data: {
       fullname: string;
+      username: string;
       password: string;
       telephone: string;
       birthdate: string;
@@ -43,40 +43,48 @@ export const useAuthStore = defineStore("auth", {
         data
       );
     },
-    
+
     // Logout function
-    logout(): void {
-      console.log(localStorage.getItem("token"));
-      this.contact = null;
-      this.token = null;
-      localStorage.removeItem("token");
-      delete axios.defaults.headers.common["Authorization"];
+    async logout(): Promise<void> {
+      try {
+        const response = await axios.post(
+          "https://apichathouse.enzopenisson.duckdns.org/auth/logout",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        this.contact = null;
+        this.token = null;
+        localStorage.removeItem("token");
+        delete axios.defaults.headers.common["Authorization"];
+      } catch {}
     },
 
     // Fetch contact function
     async fetchContact(): Promise<void> {
       if (this.token) {
-        
         try {
           const response = await axios.get<Contact>(
             "https://apichathouse.enzopenisson.duckdns.org/auth/profile",
             {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
           );
-          console.log(response);
-          
+
           this.contact = response.data;
-          
         } catch {
           // this.logout();
-          
         }
       }
     },
 
     isLogin(): boolean {
       return !!localStorage.getItem("token");
-    }
+    },
   },
 });

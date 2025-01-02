@@ -16,7 +16,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/",
     name: "Dashboard",
     component: () => import("@/pages/Dashboard.vue"),
-    // meta: { requiresAuth: true },
+    meta: { requiresAuth: true },
   },
   {
     path: "/chat/:id",
@@ -36,9 +36,9 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth && !authStore.token) {
     next({ name: "Login" });
   } else {
-    if (!authStore.contact && authStore.token) {
+    // if (!authStore.contact && authStore.token) {
       await authStore.fetchContact();
-    }
+    // }
     next();
   }
 });

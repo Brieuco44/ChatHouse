@@ -43,7 +43,7 @@ import { useRouter } from "vue-router";
 import { useContactsStore } from "@/stores/contacts";
 import { useAuthStore } from "@/stores/auth";
 import { Contact } from "@/types/contacts";
-// import { searchContactsAPI } from "@/api/contacts";
+import { searchContactAPI } from "@/api/contacts";
 
 export default {
   name: "dashboard",
@@ -61,7 +61,7 @@ export default {
 
     const searchContacts = async () => {
       if (searchQuery.value.trim()) {
-        // searchResults.value = await searchContactsAPI(searchQuery.value);
+        searchResults.value = await searchContactAPI(searchQuery.value);
       } else {
         searchResults.value = [];
       }

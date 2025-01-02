@@ -26,3 +26,10 @@ export const removeContactAPI = async (contactId: string) => {
   );
   return response.data;
 };
+
+export const searchContactAPI = async (username: string) => {
+  const response = await axios.get(`https://apichathouse.enzopenisson.duckdns.org/user/search?query=${username}`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  });
+  return response.data;
+}
