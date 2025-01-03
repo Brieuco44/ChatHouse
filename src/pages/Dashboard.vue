@@ -15,7 +15,7 @@
       <h3 class="text-lg font-bold mb-2">Résultats de recherche</h3>
       <ul>
         <li v-for="result in searchResults" :key="result.id" class="p-2 border-b flex justify-between items-center">
-          <span>{{ result.fullname }} ({{ result.email }})</span>
+          <span>{{ result.username }}</span>
           <button @click="addContact(result.id)" class="btn btn-primary">
             Ajouter
           </button>
@@ -25,12 +25,12 @@
 
     <!-- Liste des contacts -->
     <div class="contacts-list">
-      <h2>Mes contacts :</h2>
+      <h2 class="text-lg font-bold mb-2">Mes contacts :</h2>
       <ul>
-        <li v-for="contact in listContacts" :key="contact.id" class="contact-item">
+        <li v-for="contact in contacts" :key="contact.id" class="p-2 border-b flex justify-between items-center">
           <span>{{ contact.fullname }}</span>
-          <button @click="openChat(contact.id)" class="chat-btn">Discussion</button>
-          <button @click="removeContact(contact.id)" class="remove-btn">Supprimer</button>
+          <button @click="openChat(contact.id)" class="btn btn-primary">Discussion</button>
+          <button @click="removeContact(contact.id)" class="btn btn-danger">Supprimer</button>
         </li>
       </ul>
     </div>
@@ -50,15 +50,14 @@ export default {
   setup() {
     const contactsStore = useContactsStore();
     const router = useRouter();
-    const listContacts = ref<Contact[]>([]);
 
     const searchQuery = ref("");
     const searchResults = ref<Contact[]>([]);
 
-    onMounted(() => {
-      contactsStore.loadContacts();
+    onMounted(() => { 
+      contactsStore.loadContacts(); 
     });
-
+ 
     const searchContacts = async () => {
       if (searchQuery.value.trim()) {
         searchResults.value = await searchContactAPI(searchQuery.value);
@@ -89,7 +88,6 @@ export default {
       removeContact,
       openChat,
       authStore: useAuthStore(),
-      listContacts : contactsStore.contacts,
     };
   },
 };

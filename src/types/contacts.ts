@@ -5,5 +5,6 @@ export interface Contact {
     username: string;
     telephone: string;
     dateajout: string;
+    room: string|null;
   }
   

@@ -5,4 +5,19 @@ const socket = io("https://apichathouse.enzopenisson.duckdns.org", {
   transports: ["websocket"],
 });
 
+// Rejoindre une salle de conversation
+export const joinConversationRoom = (room: string) => {
+  socket.emit("join_room", { room });
+};
+
+// Quitter une salle de conversation
+export const leaveConversationRoom = (room: string) => {
+  socket.emit("leave_room", { room });
+};
+
+// Envoyer un événement de nouveau message
+export const emitNewMessage = (message: any) => {
+  socket.emit("new_message", message);
+};
+
 export default socket;

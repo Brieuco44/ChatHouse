@@ -25,9 +25,9 @@ export const useContactsStore = defineStore("contacts", () => {
   };
 
   // Gérer les événements en temps réel
-  socket.on("contacts_updated", (data) => {
-    contacts.value = data.contacts;
-  });
+  // socket.on("contacts_updated", (data) => {
+  //   contacts.value = data.contacts;
+  // });
 
   return { contacts, loadContacts, addContact, removeContact };
 });
