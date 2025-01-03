@@ -28,3 +28,9 @@ export const deleteMessage = async (messageId: string) => {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   });
 };
+
+export const fetchConversation = async (receiverid : string) => {
+  return await axios.get(`${API_URL}/get_conversation?receiver_id=${receiverid}`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  });
+};

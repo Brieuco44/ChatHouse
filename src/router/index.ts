@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import { useContactsStore } from "@/stores/contacts";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -32,13 +33,15 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  const ContactsStore = useContactsStore();
   const authStore = useAuthStore();
   if (to.meta.requiresAuth && !authStore.token) {
     next({ name: "Login" });
   } else {
-    // if (!authStore.contact && authStore.token) {
+    if (!authStore.contact && authStore.token) {
       await authStore.fetchContact();
-    // }
+      await ContactsStore.loadContacts();
+    }
     next();
   }
 });

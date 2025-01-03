@@ -29,7 +29,7 @@
       <ul>
         <li v-for="contact in contacts" :key="contact.id" class="p-2 border-b flex justify-between items-center">
           <span>{{ contact.fullname }}</span>
-          <button @click="openChat(contact.id)" class="btn btn-primary">Discussion</button>
+          <button @click="openChat(contact.room, contact.id)" class="btn btn-primary">Discussion</button>
           <button @click="removeContact(contact.id)" class="btn btn-danger">Supprimer</button>
         </li>
       </ul>
@@ -50,7 +50,6 @@ export default {
   setup() {
     const contactsStore = useContactsStore();
     const router = useRouter();
-
     const searchQuery = ref("");
     const searchResults = ref<Contact[]>([]);
 
@@ -75,8 +74,8 @@ export default {
       await contactsStore.removeContact(contactId);
     };
 
-    const openChat = (contactId: string) => {
-      router.push({ name: "Chat", params: { id: contactId } });
+    const openChat = (room: string|null, contactId: string|null) => {
+      router.push({ name: "Chat", params: {room: room, id: contactId } });
     };
 
     return {
