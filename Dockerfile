@@ -19,5 +19,8 @@ RUN npm run build
 # Expose the port the app will run on
 EXPOSE 5173
 
+# Ensure that the local node_modules/.bin is in the PATH
+ENV PATH /app/node_modules/.bin:$PATH
+
 # Start the Vite app
 CMD ["npm", "run", "dev", "--", "--host"]
