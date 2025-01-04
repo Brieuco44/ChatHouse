@@ -1,12 +1,8 @@
-version: '3.8'
-
 services:
   chathouse:
     image: chathouse:latest
     ports:
-      - "5173:5173"
-    volumes:
-      - .:/app
+      - "5173:3000"
     environment:
       - NODE_ENV=development
     networks:
