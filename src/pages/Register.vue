@@ -44,7 +44,7 @@ export default {
       }
     };
 
-    return { name, email, password, telephone, birthdate, register };
+    return { name,username, email, password, telephone, birthdate, register };
   },
 };
 </script>

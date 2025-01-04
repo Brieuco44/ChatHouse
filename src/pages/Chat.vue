@@ -132,10 +132,10 @@ export default defineComponent({
     };
 
     const formatDate = (date: string) => {
-      // convert the timestamp to number
+      // Convert the timestamp to number
       const timestamp = Number(date);
 
-      const optionsTime = { hour: "numeric", minute: "numeric", hour12: false };
+      const optionsTime: Intl.DateTimeFormatOptions = { hour: "numeric", minute: "numeric", hour12: false };
       const messageDate = new Date(timestamp * 1000); // Convert from seconds to milliseconds
       const currentDate = new Date();
       const diff = currentDate.getTime() - messageDate.getTime();
@@ -153,6 +153,7 @@ export default defineComponent({
       // Return the full date in French if more than 24 hours
       return messageDate.toLocaleDateString("fr-FR");
     };
+
 
 
     onMounted(() => {
