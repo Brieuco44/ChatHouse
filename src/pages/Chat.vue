@@ -131,7 +131,10 @@ export default defineComponent({
       }
     };
 
-    const formatDate = (timestamp: number) => {
+    const formatDate = (date: string) => {
+      // convert the timestamp to number
+      const timestamp = Number(date);
+
       const optionsTime = { hour: "numeric", minute: "numeric", hour12: false };
       const messageDate = new Date(timestamp * 1000); // Convert from seconds to milliseconds
       const currentDate = new Date();
