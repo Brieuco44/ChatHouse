@@ -1,6 +1,6 @@
 <template>
-  <div id="app" class="d-flex flex-column h-screen">
-    <div class="navbar bg-base-100">
+  <div id="app" class="d-flex flex-column h-screen overflow-y-hidden">
+    <div class="navbar bg-base-100 sticky top-0 z-10">
       <div class="navbar-start">
         <router-link to="/">
           <font-awesome-icon icon="fa-solid fa-people-roof" size="2xl" />
