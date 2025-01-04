@@ -45,6 +45,7 @@ import { joinConversationRoom, leaveConversationRoom } from "@/plugins/socket";
 import socket from "@/plugins/socket";
 import { sendMessage, fetchConversation } from "@/api/messages";
 import { useAuthStore } from "@/stores/auth";
+import { Message } from "@/types/messages";
 
 export default defineComponent({
   setup() {
@@ -54,7 +55,7 @@ export default defineComponent({
     const fullname = route.params.fullname as string;
     const authStore = useAuthStore();
     const currentUserId = authStore.contact?.id || null;
-    const messages = ref<any[]>([]);
+    const messages = ref<Message[]>([]);
     const messageText = ref("");
     const contactName = ref("Contact");
 
@@ -81,8 +82,8 @@ export default defineComponent({
       
       try {
         const response = await sendMessage(receiverId, text);
-        console.log();
-        messages.value.push(text); // Ajoute le message immédiatement
+        // messages.value.push(text); // Ajoute le message immédiatement
+        console.log(messages.value);
       } catch (error) {
         console.error("Failed to send message:", error);
       }
@@ -102,17 +103,13 @@ export default defineComponent({
 
     onMounted(() => {
       loadMessages();
-      console.log(conversationId, receiverId, fullname);
-      
-
-      const room = `conversation_${conversationId}`;
-      joinConversationRoom(room);
+      joinConversationRoom(conversationId);
 
       socket.on("new_message", receiveMessage);
 
       // Clean up on unmount
       return () => {
-        leaveConversationRoom(room);
+        leaveConversationRoom(conversationId);
         socket.off("new_message", receiveMessage);
       };
     });
