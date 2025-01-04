@@ -118,7 +118,7 @@ export default defineComponent({
         (message.sender_id === currentUserId && message.receiver_id === receiverId) ||
         (message.receiver_id === currentUserId && message.sender_id === receiverId)
       ) {
-        messages.value.push(message);
+        messages.value.unshift(message);
       }
     };
 
