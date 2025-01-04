@@ -2,11 +2,11 @@
   <div class="flex flex-col">
     <!-- Header -->
     <div class="header text-white p-4 flex self-center">
-      <h2 class="text-lg font-bold">Chat avec {{ }}</h2>
+      <h2 class="text-lg font-bold">Chat avec {{ fullname }}</h2>
     </div>
 
     <!-- Messages -->
-    <div class="flex-1 p-4 overflow-y-auto">
+    <div class="flex-1 p-4 h-max overflow-x-auto">
       <!-- Chat Messages -->
       <div v-for="message in messages" :key="message.id" class="mb-4">
         <!-- Sent Message -->
@@ -27,7 +27,7 @@
     </div>
 
       <!-- Input -->
-      <div class="w-full absolute inset-x-0 bottom-0 p-4 ">
+      <div class="w-full  bottom-0 p-4 ">
         <div class="flex items-center">
           <input v-model="messageText" type="text" @keypress.enter="sendMessage"
             class="input input-bordered align-middle flex-1 w-2/3" placeholder="Écrire un message..." />
@@ -51,6 +51,7 @@ export default defineComponent({
     const route = useRoute();
     const conversationId = route.params.room as string;
     const receiverId = route.params.id as string;
+    const fullname = route.params.fullname as string;
     const authStore = useAuthStore();
     const currentUserId = authStore.contact?.id || null;
     const messages = ref<any[]>([]);
@@ -74,12 +75,14 @@ export default defineComponent({
     // Envoyer un message
     const sendMessageToServer = async () => {
       if (!messageText.value.trim()) return;
+      
       const text = messageText.value.trim();
       messageText.value = "";
-
+      
       try {
-        const response = await sendMessage(conversationId, text);
-        messages.value.push(response.data); // Ajoute le message immédiatement
+        const response = await sendMessage(receiverId, text);
+        console.log();
+        messages.value.push(text); // Ajoute le message immédiatement
       } catch (error) {
         console.error("Failed to send message:", error);
       }
@@ -87,9 +90,11 @@ export default defineComponent({
 
     // Recevoir un message en temps réel
     const receiveMessage = (message: any) => {
+      console.log("Received message:", message);
+      
       if (
-        (message.sender_id === currentUserId && message.receiver_id === conversationId) ||
-        (message.receiver_id === currentUserId && message.sender_id === conversationId)
+        (message.sender_id === currentUserId && message.receiver_id === receiverId) ||
+        (message.receiver_id === currentUserId && message.sender_id === receiverId)
       ) {
         messages.value.push(message);
       }
@@ -97,6 +102,8 @@ export default defineComponent({
 
     onMounted(() => {
       loadMessages();
+      console.log(conversationId, receiverId, fullname);
+      
 
       const room = `conversation_${conversationId}`;
       joinConversationRoom(room);
@@ -111,6 +118,7 @@ export default defineComponent({
     });
 
     return {
+      fullname,
       messages,
       messageText,
       currentUserId,
