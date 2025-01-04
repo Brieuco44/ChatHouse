@@ -1,12 +1,17 @@
+version: '3.8'
+
 services:
   chathouse:
-    build: .
+    image: chathouse:latest
     ports:
       - "5173:5173"
-    environment:
-      - NODE_ENV=development
     volumes:
       - .:/app
-    command: npm run dev -- --host
-    depends_on:
-      - node
+    environment:
+      - NODE_ENV=development
+    networks:
+      - chathouse-network
+
+networks:
+  chathouse-network:
+    driver: bridge
