@@ -2,12 +2,18 @@ import apiRequest from "@/api/apirequest";
 
 const API_URL = "https://apichathouse.enzopenisson.duckdns.org/communication";
 // Send Message
-export const sendMessage = async (receiverId: string, message: string) => {
+export const sendMessage = async (receiverId: string, message: string, id_offline:string|null) => {
   const url = `${API_URL}/send_message`;
   const method = "POST";
-  const body = { receiver_id: receiverId, message };
-
-  return await apiRequest(url, method, body);
+  if (id_offline == null){
+    const body = { receiver_id: receiverId, message };
+    let attendre = await apiRequest(url, method, body);
+    return attendre;
+  } else {
+    const body = { receiver_id: receiverId, message, id_offline:id_offline };
+    let attendre = await apiRequest(url, method, body);
+    return attendre;
+  }
 };
 
 // Update Message
