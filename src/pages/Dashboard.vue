@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted } from "vue";
+import {ref, onMounted, computed} from "vue";
 import { useRouter } from "vue-router";
 import { useContactsStore } from "@/stores/contacts";
 import { useAuthStore } from "@/stores/auth";
@@ -52,12 +52,17 @@ export default {
     const router = useRouter();
     const searchQuery = ref("");
     const searchResults = ref<Contact[]>([]);
+    const contacts = computed(() => contactsStore.contacts);
 
     onMounted(() => { 
       contactsStore.loadContacts(); 
     });
  
     const searchContacts = async () => {
+      if (searchQuery.value.trim().length < 2) {
+        searchResults.value = [];
+        return;
+      }
       if (searchQuery.value.trim()) {
         searchResults.value = await searchContactAPI(searchQuery.value);
       } else {
@@ -66,12 +71,23 @@ export default {
     };
 
     const addContact = async (contactId: string) => {
-      await contactsStore.addContact(contactId);
-      searchQuery.value = "";
+      try {
+        await contactsStore.addContact(contactId);
+        searchQuery.value = ""; // Efface la barre de recherche
+        searchResults.value = []; // Efface les résultats de recherche
+        console.log(contactsStore.contacts); // Affiche les contacts après ajout but not updated the view
+      } catch (error) {
+        console.error("Erreur lors de l'ajout du contact :", error);
+      }
     };
 
     const removeContact = async (contactId: string) => {
-      await contactsStore.removeContact(contactId);
+      try {
+        await contactsStore.removeContact(contactId);
+        console.log(contactsStore.contacts); // Affiche les contacts après suppression but not updated the view
+      } catch (error) {
+        console.error("Erreur lors de la suppression du contact :", error);
+      }
     };
 
     const openChat = (room: string|null, contactId: string|null, fullname: string) => {
@@ -81,7 +97,7 @@ export default {
     return {
       searchQuery,
       searchResults,
-      contacts: contactsStore.contacts,
+      contacts,
       searchContacts,
       addContact,
       removeContact,

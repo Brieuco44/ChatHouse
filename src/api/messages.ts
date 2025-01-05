@@ -1,36 +1,37 @@
-import axios from "axios";
+import apiRequest from "@/api/apirequest";
 
 const API_URL = "https://apichathouse.enzopenisson.duckdns.org/communication";
-
+// Send Message
 export const sendMessage = async (receiverId: string, message: string) => {
-  return await axios.post(
-    `${API_URL}/send_message`,
-    { receiver_id: receiverId, message },
-    {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    }
-  );
+  const url = `${API_URL}/send_message`;
+  const method = "POST";
+  const body = { receiver_id: receiverId, message };
+
+  return await apiRequest(url, method, body);
 };
 
-export const editMessage = async (messageId: string, newText: string) => {
-  return await axios.put(
-    `${API_URL}/edit_message`,
-    { message_id: messageId, new_text: newText },
-    {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    }
-  );
+// Update Message
+export const updateMessage = async (receiverId: string, messageId: string, newText: string) => {
+  const url = `${API_URL}/edit_message`;
+  const method = "PUT";
+  const body = { message_id: messageId, receiver_id: receiverId, new_text: newText };
+
+  return await apiRequest(url, method, body);
 };
 
+// Delete Message
 export const deleteMessage = async (messageId: string) => {
-  return await axios.delete(`${API_URL}/remove_message`, {
-    data: { message_id: messageId },
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  });
+  const url = `${API_URL}/remove_message`;
+  const method = "DELETE";
+  const body = { message_id: messageId };
+
+  return await apiRequest(url, method, body);
 };
 
-export const fetchConversation = async (receiverid : string) => {
-  return await axios.get(`${API_URL}/get_conversation?receiver_id=${receiverid}`, {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  });
+// Fetch Conversation
+export const fetchConversation = async (receiverid: string) => {
+  const url = `${API_URL}/get_conversation?receiver_id=${receiverid}`;
+  const method = "GET";
+
+  return await apiRequest(url, method);
 };

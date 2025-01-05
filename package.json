@@ -15,6 +15,8 @@
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@vueuse/components": "^12.3.0",
+    "@vueuse/core": "^12.3.0",
     "axios": "^1.7.9",
     "chathouse": "file:",
     "path": "^0.12.7",
