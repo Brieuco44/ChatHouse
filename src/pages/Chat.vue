@@ -20,18 +20,38 @@
         <!-- Sent Message -->
         <div v-if="message.sender_id === currentUserId" class="flex justify-end">
           <div class="relative">
-            <div class="bg-primary text-white rounded-lg px-4 py-3 max-w-xs shadow-lg">
+            <div
+                :class="[
+                'rounded-lg px-4 py-3 max-w-xs shadow-lg',
+                message.id.includes('offline-') ? 'bg-red-500 text-white' : 'bg-primary text-white'
+              ]"
+            >
               {{ message.text }}
               <div class="flex justify-between items-center mt-2">
                 <span class="text-xs text-gray-200">{{ formatDate(message.date) }}</span>
               </div>
             </div>
             <p v-if="message.edited" class="text-xs text-gray-400 text-right mt-1">edited</p>
+            <p
+                v-if="message.id.includes('offline-')"
+                class="text-xs text-red-400 text-right mt-1"
+            >
+              Failed to send
+            </p>
+
+            <!-- Trois points -->
+            <div
+                v-if="hoveredMessageId === message.id"
+                class="absolute top-0 right-0 mr-2 cursor-pointer"
+                @click="openContextMenu(message)"
+            >
+              <span class="text-gray-400 hover:text-gray-600">...</span>
+            </div>
 
             <!-- Menu contextuel -->
             <div
-                v-if="hoveredMessageId === message.id"
-                class="absolute top-0 right-full mr-2 flex flex-col bg-gray-800 text-white p-2 rounded shadow"
+                v-if="contextMenuMessageId === message.id"
+                class="absolute top-0 right-full mr-2 flex flex-col bg-gray-800 text-white p-2 rounded shadow z-20"
             >
               <button
                   @click="editMessage(message)"
@@ -64,7 +84,6 @@
       </div>
     </div>
 
-
     <!-- Input -->
     <div class="w-full p-4 bg-base-100 sticky bottom-0 z-10">
       <div class="flex items-center">
@@ -88,10 +107,11 @@ import {defineComponent, ref, onMounted, onBeforeUnmount} from "vue";
 import { useRoute } from "vue-router";
 import { joinConversationRoom, leaveConversationRoom } from "@/plugins/socket";
 import socket from "@/plugins/socket";
-import { sendMessage, fetchConversation, deleteMessage, updateMessage } from "@/api/messages";
+import { sendMessage, fetchConversation, deleteMessage, updateMessage} from "@/api/messages";
 import { useAuthStore } from "@/stores/auth";
 import { Message } from "@/types/messages";
 import { useNetwork } from "@vueuse/core";
+import {watchLocalStorage} from "@/api/apirequest";
 
 export default defineComponent({
   setup() {
@@ -105,6 +125,7 @@ export default defineComponent({
     const messageText = ref("");
     const contactName = ref("Contact");
     const hoveredMessageId = ref<string | null>(null);
+    const contextMenuMessageId = ref<string | null>(null);
     const { isOnline } = useNetwork();
 
     // Charger les messages de la conversation
@@ -193,6 +214,11 @@ export default defineComponent({
       }
     };
 
+    const openContextMenu = (message: Message) => {
+      contextMenuMessageId.value = contextMenuMessageId.value === message.id ? null : message.id;
+    };
+
+
     // Modifier un message
     const editMessage = async (message: Message) => {
       const newText = prompt("Modifier le message :", message.text);
@@ -249,9 +275,11 @@ export default defineComponent({
     onMounted(() => {
       loadMessages(); // Assume this function loads previously saved messages
       joinConversationRoom(conversationId);
+      watchLocalStorage(conversationId);
 
       socket.on("new_message", receiveMessage);
       socket.on("edit_message", receiveUpdateMessage);
+      socket.on("reload_messages", loadMessages);
 
       // Clean up on unmount
       onBeforeUnmount(() => {
@@ -271,7 +299,9 @@ export default defineComponent({
       Supprmessage,
       formatDate,
       editMessage,
-      hoveredMessageId
+      hoveredMessageId,
+      contextMenuMessageId,
+      openContextMenu
     };
   },
 });
