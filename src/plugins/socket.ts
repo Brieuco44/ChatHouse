@@ -24,7 +24,8 @@ export const leaveConversationRoom = (room: string) => {
 export const emitNewMessage = (message: any) => {
   socket.emit("new_message", message);
   console.log("new message", message);
-  
+
 };
+
 
 export default socket;

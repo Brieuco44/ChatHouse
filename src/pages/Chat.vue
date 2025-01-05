@@ -10,19 +10,41 @@
         ref="messagesContainer"
         class="flex-1 p-4 overflow-y-auto mb-16 flex flex-col-reverse"
     >
-      <!-- Chat Messages -->
-      <div v-for="message in messages" :key="message.id" class="mb-4">
+      <div
+          v-for="message in messages"
+          :key="message.id"
+          class="mb-4 relative group"
+          @mouseover="hoveredMessageId = message.id"
+          @mouseleave="hoveredMessageId = null"
+      >
         <!-- Sent Message -->
         <div v-if="message.sender_id === currentUserId" class="flex justify-end">
           <div class="relative">
-            <div class="bg-primary text-white rounded-lg px-4 py-3 max-w-xs shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
+            <div class="bg-primary text-white rounded-lg px-4 py-3 max-w-xs shadow-lg">
               {{ message.text }}
               <div class="flex justify-between items-center mt-2">
                 <span class="text-xs text-gray-200">{{ formatDate(message.date) }}</span>
-                <button @click="Supprmessage(message.id)" class="text-white hover:text-red-500 transition-colors duration-200">
-                  <font-awesome-icon icon="fa-solid fa-trash" />
-                </button>
               </div>
+            </div>
+            <p v-if="message.edited" class="text-xs text-gray-400 text-right mt-1">edited</p>
+
+            <!-- Menu contextuel -->
+            <div
+                v-if="hoveredMessageId === message.id"
+                class="absolute top-0 right-full mr-2 flex flex-col bg-gray-800 text-white p-2 rounded shadow"
+            >
+              <button
+                  @click="editMessage(message)"
+                  class="hover:text-yellow-400 mb-1 transition"
+              >
+                Modifier
+              </button>
+              <button
+                  @click="Supprmessage(message.id)"
+                  class="hover:text-red-500 transition"
+              >
+                Supprimer
+              </button>
             </div>
           </div>
         </div>
@@ -36,10 +58,12 @@
                 <span class="text-xs text-gray-400">{{ formatDate(message.date) }}</span>
               </div>
             </div>
+            <p v-if="message.edited" class="text-xs text-gray-400 text-left mt-1">edited</p>
           </div>
         </div>
       </div>
     </div>
+
 
     <!-- Input -->
     <div class="w-full p-4 bg-base-100 sticky bottom-0 z-10">
@@ -64,7 +88,7 @@ import { defineComponent, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { joinConversationRoom, leaveConversationRoom } from "@/plugins/socket";
 import socket from "@/plugins/socket";
-import {sendMessage, fetchConversation, deleteMessage} from "@/api/messages";
+import { sendMessage, fetchConversation, deleteMessage, updateMessage } from "@/api/messages";
 import { useAuthStore } from "@/stores/auth";
 import { Message } from "@/types/messages";
 
@@ -79,15 +103,12 @@ export default defineComponent({
     const messages = ref<Message[]>([]);
     const messageText = ref("");
     const contactName = ref("Contact");
+    const hoveredMessageId = ref<string | null>(null);
 
     // Charger les messages de la conversation
     const loadMessages = async () => {
       try {
-        console.log("Loading messages...");
-
         const response = await fetchConversation(receiverId);
-        console.log("Messages loaded:", response.data);
-
         messages.value = response.data;
       } catch (error) {
         console.error("Failed to load messages:", error);
@@ -115,19 +136,54 @@ export default defineComponent({
       console.log("Received message:", message);
 
       if (
-        (message.sender_id === currentUserId && message.receiver_id === receiverId) ||
-        (message.receiver_id === currentUserId && message.sender_id === receiverId)
+          (message.sender_id === currentUserId && message.receiver_id === receiverId) ||
+          (message.receiver_id === currentUserId && message.sender_id === receiverId)
       ) {
-        messages.value.push(message);
+        messages.value.unshift(message);
       }
     };
 
+    const receiveUpdateMessage = (editEvent: any) => {
+      console.log("Received edit event:", editEvent);
+
+      // Extract relevant data from the emitted event
+      const { message_id, new_text, edited } = editEvent;
+
+      // Update the message in the list if it exists
+      messages.value = messages.value.map((msg) => {
+        if (msg.id === message_id) {
+          return {
+            ...msg,
+            text: new_text,
+            edited: edited || false, // Default to false if `edited` is not present
+          };
+        }
+        return msg;
+      });
+    };
+
+
+    // Supprimer un message
     const Supprmessage = async (messageId: string) => {
       try {
         await deleteMessage(messageId);
         messages.value = messages.value.filter((message) => message.id !== messageId);
       } catch (error) {
         console.error("Failed to delete message:", error);
+      }
+    };
+
+    // Modifier un message
+    const editMessage = async (message: Message) => {
+      const newText = prompt("Modifier le message :", message.text);
+      if (newText && newText.trim() !== message.text) {
+        try {
+          const updatedMessage = await updateMessage(receiverId,message.id, newText.trim());
+
+          message.text = updatedMessage.data.text; // Met à jour directement dans la liste
+        } catch (error) {
+          console.error("Failed to edit message:", error);
+        }
       }
     };
 
@@ -161,6 +217,7 @@ export default defineComponent({
       joinConversationRoom(conversationId);
 
       socket.on("new_message", receiveMessage);
+      socket.on("edit_message", receiveUpdateMessage);
 
       // Clean up on unmount
       return () => {
@@ -178,7 +235,10 @@ export default defineComponent({
       sendMessage: sendMessageToServer,
       Supprmessage,
       formatDate,
+      editMessage,
+      hoveredMessageId
     };
   },
 });
+
 </script>

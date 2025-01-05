@@ -12,10 +12,10 @@ export const sendMessage = async (receiverId: string, message: string) => {
   );
 };
 
-export const editMessage = async (messageId: string, newText: string) => {
+export const updateMessage = async (receiverId: string,messageId: string, newText: string) => {
   return await axios.put(
     `${API_URL}/edit_message`,
-    { message_id: messageId, new_text: newText },
+    { message_id: messageId, receiver_id: receiverId, new_text: newText },
     {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     }
