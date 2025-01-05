@@ -20,18 +20,38 @@
         <!-- Sent Message -->
         <div v-if="message.sender_id === currentUserId" class="flex justify-end">
           <div class="relative">
-            <div class="bg-primary text-white rounded-lg px-4 py-3 max-w-xs shadow-lg">
+            <div
+                :class="[
+                'rounded-lg px-4 py-3 max-w-xs shadow-lg',
+                message.id.includes('offline-') ? 'bg-red-500 text-white' : 'bg-primary text-white'
+              ]"
+            >
               {{ message.text }}
               <div class="flex justify-between items-center mt-2">
                 <span class="text-xs text-gray-200">{{ formatDate(message.date) }}</span>
               </div>
             </div>
             <p v-if="message.edited" class="text-xs text-gray-400 text-right mt-1">edited</p>
+            <p
+                v-if="message.id.includes('offline-')"
+                class="text-xs text-red-400 text-right mt-1"
+            >
+              Failed to send
+            </p>
+
+            <!-- Trois points -->
+            <div
+                v-if="hoveredMessageId === message.id"
+                class="absolute top-0 right-0 mr-2 cursor-pointer"
+                @click="openContextMenu(message)"
+            >
+              <span class="text-gray-400 hover:text-gray-600">...</span>
+            </div>
 
             <!-- Menu contextuel -->
             <div
-                v-if="hoveredMessageId === message.id"
-                class="absolute top-0 right-full mr-2 flex flex-col bg-gray-800 text-white p-2 rounded shadow"
+                v-if="contextMenuMessageId === message.id"
+                class="absolute top-0 right-full mr-2 flex flex-col bg-gray-800 text-white p-2 rounded shadow z-20"
             >
               <button
                   @click="editMessage(message)"
@@ -64,7 +84,6 @@
       </div>
     </div>
 
-
     <!-- Input -->
     <div class="w-full p-4 bg-base-100 sticky bottom-0 z-10">
       <div class="flex items-center">
@@ -84,13 +103,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import {defineComponent, ref, onMounted, onBeforeUnmount} from "vue";
 import { useRoute } from "vue-router";
 import { joinConversationRoom, leaveConversationRoom } from "@/plugins/socket";
 import socket from "@/plugins/socket";
-import { sendMessage, fetchConversation, deleteMessage, updateMessage } from "@/api/messages";
+import { sendMessage, fetchConversation, deleteMessage, updateMessage} from "@/api/messages";
 import { useAuthStore } from "@/stores/auth";
 import { Message } from "@/types/messages";
+import { useNetwork } from "@vueuse/core";
+import {watchLocalStorage} from "@/api/apirequest";
 
 export default defineComponent({
   setup() {
@@ -104,6 +125,8 @@ export default defineComponent({
     const messageText = ref("");
     const contactName = ref("Contact");
     const hoveredMessageId = ref<string | null>(null);
+    const contextMenuMessageId = ref<string | null>(null);
+    const { isOnline } = useNetwork();
 
     // Charger les messages de la conversation
     const loadMessages = async () => {
@@ -122,10 +145,27 @@ export default defineComponent({
       const text = messageText.value.trim();
       messageText.value = "";
 
+      let timestampInSeconds = Math.floor(Date.now() / 1000);
+
+      // if offline unshift the message bc it will be added to the chat when the user is back online
+      let idoffline = null;
+      if (!isOnline.value) {
+        idoffline = "offline-" + Date.now();
+        messages.value.unshift({
+          id: idoffline, // how can we associate this with the actual message id?
+          sender_id: currentUserId as string,
+          receiver_id: receiverId,
+          text,
+          date: timestampInSeconds.toString(),
+          edited: false,
+        });
+      }
+
       try {
-        const response = await sendMessage(receiverId, text);
+        const response = await sendMessage(receiverId, text,idoffline);
         // messages.value.push(text); // Ajoute le message immédiatement
-        console.log(messages.value);
+        //console.log(messages.value);
+
       } catch (error) {
         console.error("Failed to send message:", error);
       }
@@ -133,6 +173,7 @@ export default defineComponent({
 
     // Recevoir un message en temps réel
     const receiveMessage = (message: any) => {
+      // if offline add to the chat
       console.log("Received message:", message);
 
       if (
@@ -173,9 +214,30 @@ export default defineComponent({
       }
     };
 
+    const openContextMenu = (message: Message) => {
+      contextMenuMessageId.value = contextMenuMessageId.value === message.id ? null : message.id;
+    };
+
+
     // Modifier un message
     const editMessage = async (message: Message) => {
       const newText = prompt("Modifier le message :", message.text);
+
+      if(!isOnline.value){
+        // update the message in the chat
+        messages.value = messages.value.map((msg) => {
+          if (msg.id === message.id) {
+            return {
+              ...msg,
+              text: newText,
+              edited: true,
+            };
+          }
+          return msg;
+        });
+      }
+
+
       if (newText && newText.trim() !== message.text) {
         try {
           const updatedMessage = await updateMessage(receiverId,message.id, newText.trim());
@@ -211,17 +273,20 @@ export default defineComponent({
 
 
     onMounted(() => {
-      loadMessages();
+      loadMessages(); // Assume this function loads previously saved messages
       joinConversationRoom(conversationId);
+      watchLocalStorage(conversationId);
 
       socket.on("new_message", receiveMessage);
       socket.on("edit_message", receiveUpdateMessage);
+      socket.on("reload_messages", loadMessages);
 
       // Clean up on unmount
-      return () => {
+      onBeforeUnmount(() => {
         leaveConversationRoom(conversationId);
         socket.off("new_message", receiveMessage);
-      };
+        socket.off("edit_message", receiveUpdateMessage);
+      });
     });
 
     return {
@@ -234,7 +299,9 @@ export default defineComponent({
       Supprmessage,
       formatDate,
       editMessage,
-      hoveredMessageId
+      hoveredMessageId,
+      contextMenuMessageId,
+      openContextMenu
     };
   },
 });
