@@ -109,7 +109,7 @@ export default defineComponent({
     const loadMessages = async () => {
       try {
         const response = await fetchConversation(receiverId);
-        messages.value = response.data;
+        messages.value = response;
       } catch (error) {
         console.error("Failed to load messages:", error);
       }
@@ -179,8 +179,6 @@ export default defineComponent({
       if (newText && newText.trim() !== message.text) {
         try {
           const updatedMessage = await updateMessage(receiverId,message.id, newText.trim());
-
-          message.text = updatedMessage.data.text; // Met à jour directement dans la liste
         } catch (error) {
           console.error("Failed to edit message:", error);
         }

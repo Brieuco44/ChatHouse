@@ -7,6 +7,9 @@
         </router-link>
       </div>
       <div class="navbar-end">
+        <!-- Displaying network status directly -->
+        <div>Status: <b :class="clazz">{{ text }}</b></div>
+
         <button type="button" v-if="isLogin()"  class="btn btn-link btn-ghost" @click="logout">
           <font-awesome-icon icon="fa-solid fa-power-off" class="text-error" />
         </button>
@@ -17,14 +20,20 @@
 </template>
 
 <script lang="ts">
-
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
+import { useOnline } from '@vueuse/core'
 
 export default defineComponent({
   name: "App",
   setup() {
+    // Accessing network status directly from useNetwork
+    const online = useOnline()
+
+    const clazz = computed(() => online.value ? 'text-primary' : 'text-gray')
+    const text = computed(() => online.value ? 'Online' : 'Offline')
+
     const authStore = useAuthStore();
     const router = useRouter();
     const isLogin = authStore.isLogin;
@@ -34,7 +43,7 @@ export default defineComponent({
       router.push({ name: "Login" });
     };
 
-    return { logout, isLogin };
+    return { logout, isLogin, clazz, text };
   },
 });
 </script>
