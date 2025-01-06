@@ -1,9 +1,18 @@
 <template>
   <div class="flex flex-col h-screen">
     <!-- Header -->
-    <div class="header text-white p-4 flex self-center">
-      <h2 class="text-lg font-bold">Chat avec {{ fullname }}</h2>
+    <div class="header text-white p-4 flex items-center space-x-4 ">
+      <!-- Back Arrow -->
+      <button @click="quitChat" class="text-white hover:text-gray-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <!-- Chat Title -->
+      <h2 class="text-lg font-bold">Chat avec : {{ fullname }}</h2>
     </div>
+
 
     <!-- Messages -->
     <div ref="messagesContainer" class="flex-1 p-4 overflow-y-auto mb-16 flex flex-col-reverse">
@@ -84,6 +93,7 @@ import { useAuthStore } from "@/stores/auth";
 import { Message } from "@/types/messages";
 import { useNetwork } from "@vueuse/core";
 import { watchLocalStorage } from "@/api/apirequest";
+import router from "@/router";
 
 export default defineComponent({
   setup() {
@@ -159,6 +169,10 @@ export default defineComponent({
       ) {
         messages.value.unshift(message);
       }
+    };
+
+    const quitChat = () => {
+      router.push({ name: "Dashboard" });
     };
 
     const receiveUpdateMessage = (editEvent: any) => {
@@ -294,7 +308,8 @@ export default defineComponent({
       editMessage,
       hoveredMessageId,
       contextMenuMessageId,
-      openContextMenu
+      openContextMenu,
+      quitChat,
     };
   },
 });
