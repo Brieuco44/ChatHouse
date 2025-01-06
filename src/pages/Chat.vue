@@ -6,57 +6,67 @@
     </div>
 
     <!-- Messages -->
-    <div ref="messagesContainer" class="flex-1 p-4 overflow-y-auto mb-16 flex flex-col-reverse">
-      <div v-for="message in messages" :key="message.id" class="mb-4 relative group"
-        @mouseover="hoveredMessageId = message.id" @mouseleave="hoveredMessageId = null">
+    <div class="flex-1 p-4 overflow-y-auto mb-16 flex flex-col-reverse">
+      <div v-for="message in messages" :key="message.id" class="mb-4 ">
         <!-- Sent Message -->
-        <div v-if="message.sender_id === currentUserId" class="flex justify-end">
-          <div class="relative">
-            <div :class="[
-              'rounded-lg px-4 py-3 max-w-xs shadow-lg',
-              message.id.includes('offline-') ? 'bg-red-500 text-white' : 'bg-primary text-white'
-            ]">
-              {{ message.text }}
-              <div class="flex justify-between items-center mt-2">
-                <span class="text-xs text-gray-200">{{ formatDate(message.date) }}</span>
+        <div v-if="message.sender_id === currentUserId" class="chat chat-end">
+          <div class="chat-header flex justify-between gap-1">
+            <time class="text-xs opacity-50">{{ formatDate(message.date) }}</time>
+            <!-- Trois points -->
+            <div class="" @click="openContextMenu(message)">
+              <div class="dropdown dropdown-left dropdown-end">
+                <button class="text-xs opacity-50" tabindex="0" role="button"><font-awesome-icon icon="fa-solid fa-ellipsis" /></button>
+                <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                  <li>
+                    <button @click="editMessage(message)" class="hover:text-yellow-400 mb-1 transition">
+                      Modifier
+                    </button>
+                  </li>
+                  <li>
+                    <button @click="Supprmessage(message.id)" class="hover:text-red-500 transition">
+                      Supprimer
+                    </button>
+                  </li>
+                </ul>
               </div>
             </div>
-            <p v-if="message.edited" class="text-xs text-gray-400 text-right mt-1">edited</p>
-            <p v-if="message.id.includes('offline-')" class="text-xs text-red-400 text-right mt-1">
-              Failed to send
+          </div>
+          <div :class="[
+            'chat-bubble',
+            message.id.includes('offline-') ? 'chat-bubble-error text-white' : 'chat-bubble-primary text-white'
+          ]">
+            {{ message.text }}
+          </div>
+          <div class="chat-footer opacity-50">
+            <p v-if="message.edited" class="text-xs ">edité</p>
+            <p v-if="message.id.includes('offline-')" class="text-xs text-red-400 ">
+              Echec de l'envoie
             </p>
-
-            <!-- Trois points -->
-            <div v-if="hoveredMessageId === message.id" class="absolute top-0 right-0 mr-2 cursor-pointer"
-              @click="openContextMenu(message)">
-              <span class="text-gray-400 hover:text-gray-600">...</span>
-            </div>
-
-            <!-- Menu contextuel -->
-            <div v-if="contextMenuMessageId === message.id"
-              class="absolute top-0 right-full mr-2 flex flex-col bg-gray-800 text-white p-2 rounded shadow z-20">
-              <button @click="editMessage(message)" class="hover:text-yellow-400 mb-1 transition">
-                Modifier
-              </button>
-              <button @click="Supprmessage(message.id)" class="hover:text-red-500 transition">
-                Supprimer
-              </button>
-            </div>
           </div>
         </div>
 
         <!-- Received Message -->
-        <div v-else class="flex justify-start">
-          <div class="relative">
-            <div
-              class="bg-base-300 text-white rounded-lg px-4 py-3 max-w-xs shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
-              {{ message.text }}
-              <div class="flex justify-between items-center mt-2">
-                <span class="text-xs text-gray-400">{{ formatDate(message.date) }}</span>
-              </div>
-            </div>
-            <p v-if="message.edited" class="text-xs text-gray-400 text-left mt-1">edited</p>
+        <div v-else class="chat chat-start transition-shadow duration-300 ease-in-out">
+          <div class="chat-header">
+            <span class="text-xs opacity-50">{{ formatDate(message.date) }}</span>
           </div>
+          <div class="chat-bubble ">
+            {{ message.text }}
+          </div>
+          <div class="chat-footer opacity-50">
+            <p v-if="message.edited" class="text-xs">edité</p>
+          </div>
+        </div>
+
+        <!-- Menu contextuel -->
+        <div v-if="contextMenuMessageId === message.id"
+          class="absolute top-0 right-full mr-2 flex flex-col bg-gray-800 text-white p-2 rounded shadow z-20">
+          <button @click="editMessage(message)" class="hover:text-yellow-400 mb-1 transition">
+            Modifier
+          </button>
+          <button @click="Supprmessage(message.id)" class="hover:text-red-500 transition">
+            Supprimer
+          </button>
         </div>
       </div>
     </div>
