@@ -1,9 +1,18 @@
 <template>
   <div class="flex flex-col h-screen">
     <!-- Header -->
-    <div class="header text-white p-4 flex self-center">
-      <h2 class="text-lg font-bold">Chat avec {{ fullname }}</h2>
+    <div class="header text-white p-4 flex items-center space-x-4 ">
+      <!-- Back Arrow -->
+      <button @click="quitChat" class="text-white hover:text-gray-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <!-- Chat Title -->
+      <h2 class="text-lg font-bold">Chat avec : {{ fullname }}</h2>
     </div>
+
 
     <!-- Messages -->
     <div class="flex-1 p-4 overflow-y-auto mb-16 flex flex-col-reverse">
@@ -73,10 +82,18 @@
 
     <!-- Input -->
     <div class="w-full p-4 bg-base-100 sticky bottom-0 z-10">
-      <div class="flex items-center">
-        <input v-model="messageText" type="text" @keypress.enter="sendMessage" class="input input-bordered flex-1"
-          placeholder="Écrire un message..." />
-        <button @click="sendMessage" class="btn btn-primary ml-2">
+      <div class="flex items-center space-x-2">
+        <!-- Text Input -->
+        <input
+            v-model="messageText"
+            type="text"
+            @keypress.enter="sendMessage"
+            class="input input-bordered flex-1"
+            placeholder="Écrire un message..."
+        />
+
+        <!-- Send Button -->
+        <button @click="sendMessage" class="btn btn-primary">
           <font-awesome-icon icon="fa-solid fa-paper-plane" />
         </button>
       </div>
@@ -92,8 +109,10 @@ import socket from "@/plugins/socket";
 import { sendMessage, fetchConversation, deleteMessage, updateMessage } from "@/api/messages";
 import { useAuthStore } from "@/stores/auth";
 import { Message } from "@/types/messages";
-import { useNetwork } from "@vueuse/core";
+import { useNetwork, useWebNotification } from "@vueuse/core";
 import { watchLocalStorage } from "@/api/apirequest";
+
+import router from "@/router";
 
 export default defineComponent({
   setup() {
@@ -108,13 +127,36 @@ export default defineComponent({
     const contactName = ref("Contact");
     const hoveredMessageId = ref<string | null>(null);
     const contextMenuMessageId = ref<string | null>(null);
+    const showEmojiPicker = ref(false);
+    const search = ref(""); // Ajout d'un champ de recherche pour l'EmojiPicker
     const { isOnline } = useNetwork();
+
+    // Web Notification
+    const { isSupported, show } = useWebNotification({
+      title: "New Message",
+    });
+
+    const notifyUser = (message: string, senderName: string) => {
+      if (isSupported.value) {
+        show({
+          title: `Message from ${senderName}`,
+          body: message,
+          icon: "logo.svg",
+        });
+      }
+    };
+
+    // Ajouter un emoji au texte
+    const addEmoji = (emoji: any) => {
+      messageText.value += emoji.emoji;
+    };
 
     // Charger les messages de la conversation
     const loadMessages = async () => {
       try {
         const response = await fetchConversation(receiverId);
         messages.value = response;
+
       } catch (error) {
         console.error("Failed to load messages:", error);
       }
@@ -169,6 +211,15 @@ export default defineComponent({
       ) {
         messages.value.unshift(message);
       }
+
+      // Trigger notification for received message
+      if (message.sender_id !== currentUserId) {
+        notifyUser(message.text, fullname);
+      }
+    };
+
+    const quitChat = () => {
+      router.push({ name: "Dashboard" });
     };
 
     const receiveUpdateMessage = (editEvent: any) => {
@@ -221,7 +272,7 @@ export default defineComponent({
             };
           }
           return msg;
-        });
+        }) as Message[];
       }
 
 
@@ -304,7 +355,8 @@ export default defineComponent({
       editMessage,
       hoveredMessageId,
       contextMenuMessageId,
-      openContextMenu
+      openContextMenu,
+      quitChat,
     };
   },
 });
