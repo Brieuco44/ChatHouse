@@ -91,7 +91,7 @@ import socket from "@/plugins/socket";
 import { sendMessage, fetchConversation, deleteMessage, updateMessage } from "@/api/messages";
 import { useAuthStore } from "@/stores/auth";
 import { Message } from "@/types/messages";
-import { useNetwork } from "@vueuse/core";
+import { useNetwork, useWebNotification } from "@vueuse/core";
 import { watchLocalStorage } from "@/api/apirequest";
 import router from "@/router";
 
@@ -110,11 +110,27 @@ export default defineComponent({
     const contextMenuMessageId = ref<string | null>(null);
     const { isOnline } = useNetwork();
 
+    // Web Notification
+    const { isSupported, show } = useWebNotification({
+      title: "New Message",
+    });
+
+    const notifyUser = (message: string, senderName: string) => {
+      if (isSupported.value) {
+        show({
+          title: `Message from ${senderName}`,
+          body: message,
+          icon: "logo.svg",
+        });
+      }
+    };
+
     // Charger les messages de la conversation
     const loadMessages = async () => {
       try {
         const response = await fetchConversation(receiverId);
         messages.value = response;
+
       } catch (error) {
         console.error("Failed to load messages:", error);
       }
@@ -168,6 +184,11 @@ export default defineComponent({
         (message.receiver_id === currentUserId && message.sender_id === receiverId)
       ) {
         messages.value.unshift(message);
+      }
+
+      // Trigger notification for received message
+      if (message.sender_id !== currentUserId) {
+        notifyUser(message.text, fullname);
       }
     };
 
