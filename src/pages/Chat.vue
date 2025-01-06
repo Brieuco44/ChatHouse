@@ -38,7 +38,7 @@
             <!-- Trois points -->
             <div v-if="hoveredMessageId === message.id" class="absolute top-0 right-0 mr-2 cursor-pointer"
               @click="openContextMenu(message)">
-              <span class="text-gray-400 hover:text-gray-600">...</span>
+              <span class="text-black hover:text-black">...</span>
             </div>
 
             <!-- Menu contextuel -->
@@ -72,10 +72,18 @@
 
     <!-- Input -->
     <div class="w-full p-4 bg-base-100 sticky bottom-0 z-10">
-      <div class="flex items-center">
-        <input v-model="messageText" type="text" @keypress.enter="sendMessage" class="input input-bordered flex-1"
-          placeholder="Écrire un message..." />
-        <button @click="sendMessage" class="btn btn-primary ml-2">
+      <div class="flex items-center space-x-2">
+        <!-- Text Input -->
+        <input
+            v-model="messageText"
+            type="text"
+            @keypress.enter="sendMessage"
+            class="input input-bordered flex-1"
+            placeholder="Écrire un message..."
+        />
+
+        <!-- Send Button -->
+        <button @click="sendMessage" class="btn btn-primary">
           <font-awesome-icon icon="fa-solid fa-paper-plane" />
         </button>
       </div>
@@ -93,6 +101,7 @@ import { useAuthStore } from "@/stores/auth";
 import { Message } from "@/types/messages";
 import { useNetwork, useWebNotification } from "@vueuse/core";
 import { watchLocalStorage } from "@/api/apirequest";
+
 import router from "@/router";
 
 export default defineComponent({
@@ -108,6 +117,8 @@ export default defineComponent({
     const contactName = ref("Contact");
     const hoveredMessageId = ref<string | null>(null);
     const contextMenuMessageId = ref<string | null>(null);
+    const showEmojiPicker = ref(false);
+    const search = ref(""); // Ajout d'un champ de recherche pour l'EmojiPicker
     const { isOnline } = useNetwork();
 
     // Web Notification
@@ -123,6 +134,11 @@ export default defineComponent({
           icon: "logo.svg",
         });
       }
+    };
+
+    // Ajouter un emoji au texte
+    const addEmoji = (emoji: any) => {
+      messageText.value += emoji.emoji;
     };
 
     // Charger les messages de la conversation
@@ -246,7 +262,7 @@ export default defineComponent({
             };
           }
           return msg;
-        });
+        }) as Message[];
       }
 
 
