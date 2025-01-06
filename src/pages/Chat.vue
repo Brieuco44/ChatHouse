@@ -6,63 +6,39 @@
     </div>
 
     <!-- Messages -->
-    <div
-        ref="messagesContainer"
-        class="flex-1 p-4 overflow-y-auto mb-16 flex flex-col-reverse"
-    >
-      <div
-          v-for="message in messages"
-          :key="message.id"
-          class="mb-4 relative group"
-          @mouseover="hoveredMessageId = message.id"
-          @mouseleave="hoveredMessageId = null"
-      >
+    <div ref="messagesContainer" class="flex-1 p-4 overflow-y-auto mb-16 flex flex-col-reverse">
+      <div v-for="message in messages" :key="message.id" class="mb-4 relative group"
+        @mouseover="hoveredMessageId = message.id" @mouseleave="hoveredMessageId = null">
         <!-- Sent Message -->
         <div v-if="message.sender_id === currentUserId" class="flex justify-end">
           <div class="relative">
-            <div
-                :class="[
-                'rounded-lg px-4 py-3 max-w-xs shadow-lg',
-                message.id.includes('offline-') ? 'bg-red-500 text-white' : 'bg-primary text-white'
-              ]"
-            >
+            <div :class="[
+              'rounded-lg px-4 py-3 max-w-xs shadow-lg',
+              message.id.includes('offline-') ? 'bg-red-500 text-white' : 'bg-primary text-white'
+            ]">
               {{ message.text }}
               <div class="flex justify-between items-center mt-2">
                 <span class="text-xs text-gray-200">{{ formatDate(message.date) }}</span>
               </div>
             </div>
             <p v-if="message.edited" class="text-xs text-gray-400 text-right mt-1">edited</p>
-            <p
-                v-if="message.id.includes('offline-')"
-                class="text-xs text-red-400 text-right mt-1"
-            >
+            <p v-if="message.id.includes('offline-')" class="text-xs text-red-400 text-right mt-1">
               Failed to send
             </p>
 
             <!-- Trois points -->
-            <div
-                v-if="hoveredMessageId === message.id"
-                class="absolute top-0 right-0 mr-2 cursor-pointer"
-                @click="openContextMenu(message)"
-            >
+            <div v-if="hoveredMessageId === message.id" class="absolute top-0 right-0 mr-2 cursor-pointer"
+              @click="openContextMenu(message)">
               <span class="text-gray-400 hover:text-gray-600">...</span>
             </div>
 
             <!-- Menu contextuel -->
-            <div
-                v-if="contextMenuMessageId === message.id"
-                class="absolute top-0 right-full mr-2 flex flex-col bg-gray-800 text-white p-2 rounded shadow z-20"
-            >
-              <button
-                  @click="editMessage(message)"
-                  class="hover:text-yellow-400 mb-1 transition"
-              >
+            <div v-if="contextMenuMessageId === message.id"
+              class="absolute top-0 right-full mr-2 flex flex-col bg-gray-800 text-white p-2 rounded shadow z-20">
+              <button @click="editMessage(message)" class="hover:text-yellow-400 mb-1 transition">
                 Modifier
               </button>
-              <button
-                  @click="Supprmessage(message.id)"
-                  class="hover:text-red-500 transition"
-              >
+              <button @click="Supprmessage(message.id)" class="hover:text-red-500 transition">
                 Supprimer
               </button>
             </div>
@@ -72,7 +48,8 @@
         <!-- Received Message -->
         <div v-else class="flex justify-start">
           <div class="relative">
-            <div class="bg-base-300 text-white rounded-lg px-4 py-3 max-w-xs shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
+            <div
+              class="bg-base-300 text-white rounded-lg px-4 py-3 max-w-xs shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
               {{ message.text }}
               <div class="flex justify-between items-center mt-2">
                 <span class="text-xs text-gray-400">{{ formatDate(message.date) }}</span>
@@ -87,13 +64,8 @@
     <!-- Input -->
     <div class="w-full p-4 bg-base-100 sticky bottom-0 z-10">
       <div class="flex items-center">
-        <input
-            v-model="messageText"
-            type="text"
-            @keypress.enter="sendMessage"
-            class="input input-bordered flex-1"
-            placeholder="Écrire un message..."
-        />
+        <input v-model="messageText" type="text" @keypress.enter="sendMessage" class="input input-bordered flex-1"
+          placeholder="Écrire un message..." />
         <button @click="sendMessage" class="btn btn-primary ml-2">
           <font-awesome-icon icon="fa-solid fa-paper-plane" />
         </button>
@@ -103,15 +75,15 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, onMounted, onBeforeUnmount} from "vue";
+import { defineComponent, ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { useRoute } from "vue-router";
 import { joinConversationRoom, leaveConversationRoom } from "@/plugins/socket";
 import socket from "@/plugins/socket";
-import { sendMessage, fetchConversation, deleteMessage, updateMessage} from "@/api/messages";
+import { sendMessage, fetchConversation, deleteMessage, updateMessage } from "@/api/messages";
 import { useAuthStore } from "@/stores/auth";
 import { Message } from "@/types/messages";
 import { useNetwork } from "@vueuse/core";
-import {watchLocalStorage} from "@/api/apirequest";
+import { watchLocalStorage } from "@/api/apirequest";
 
 export default defineComponent({
   setup() {
@@ -145,6 +117,11 @@ export default defineComponent({
       const text = messageText.value.trim();
       messageText.value = "";
 
+      // Supprimer le brouillon sauvegardé
+      const draftMessages = JSON.parse(localStorage.getItem("draftMessages") || "{}");
+      delete draftMessages[conversationId];
+      localStorage.setItem("draftMessages", JSON.stringify(draftMessages));
+
       let timestampInSeconds = Math.floor(Date.now() / 1000);
 
       // if offline unshift the message bc it will be added to the chat when the user is back online
@@ -162,7 +139,7 @@ export default defineComponent({
       }
 
       try {
-        const response = await sendMessage(receiverId, text,idoffline);
+        const response = await sendMessage(receiverId, text, idoffline);
         // messages.value.push(text); // Ajoute le message immédiatement
         //console.log(messages.value);
 
@@ -177,8 +154,8 @@ export default defineComponent({
       console.log("Received message:", message);
 
       if (
-          (message.sender_id === currentUserId && message.receiver_id === receiverId) ||
-          (message.receiver_id === currentUserId && message.sender_id === receiverId)
+        (message.sender_id === currentUserId && message.receiver_id === receiverId) ||
+        (message.receiver_id === currentUserId && message.sender_id === receiverId)
       ) {
         messages.value.unshift(message);
       }
@@ -223,7 +200,7 @@ export default defineComponent({
     const editMessage = async (message: Message) => {
       const newText = prompt("Modifier le message :", message.text);
 
-      if(!isOnline.value){
+      if (!isOnline.value) {
         // update the message in the chat
         messages.value = messages.value.map((msg) => {
           if (msg.id === message.id) {
@@ -240,7 +217,7 @@ export default defineComponent({
 
       if (newText && newText.trim() !== message.text) {
         try {
-          const updatedMessage = await updateMessage(receiverId,message.id, newText.trim());
+          const updatedMessage = await updateMessage(receiverId, message.id, newText.trim());
         } catch (error) {
           console.error("Failed to edit message:", error);
         }
@@ -270,9 +247,25 @@ export default defineComponent({
       return messageDate.toLocaleDateString("fr-FR");
     };
 
+    const saveDraft = () => {
+      const draftMessages = JSON.parse(localStorage.getItem("draftMessages") || "{}");
+      draftMessages[conversationId] = messageText.value;
+      localStorage.setItem("draftMessages", JSON.stringify(draftMessages));
+    };
 
+    const loadDraft = () => {
+      const draftMessages = JSON.parse(localStorage.getItem("draftMessages") || "{}");
+      messageText.value = draftMessages[conversationId] || "";
+    };
+
+
+    watch(
+      () => messageText.value,
+      saveDraft
+    );
 
     onMounted(() => {
+      loadDraft();
       loadMessages(); // Assume this function loads previously saved messages
       joinConversationRoom(conversationId);
       watchLocalStorage(conversationId);
