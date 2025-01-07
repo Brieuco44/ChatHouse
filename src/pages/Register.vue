@@ -1,18 +1,17 @@
 <template>
   <div class="container mx-auto my-auto p-5">
     <div class="mx-auto w-96">
-      <h1 class="text-2xl font-bold mb-4">Inscription</h1>
+      <h1 class="text-2xl font-bold mt-4">Inscription</h1>
       <form @submit.prevent="register">
-        <input v-model="name" type="text" placeholder="Nom" class="input input-bordered w-full mb-4" />
-        <input v-model="username" type="text" placeholder="Nom d'utilisateur" class="input input-bordered w-full mb-4" />
-        <input v-model="email" type="email" placeholder="Email" class="input input-bordered w-full mb-4" />
-        <input v-model="password" type="password" placeholder="Mot de passe" class="input input-bordered w-full mb-4" />
-        <input v-model="telephone"  type="tel" placeholder="Telephone" class="input input-bordered w-full mb-4" />
-        <input v-model="birthdate" type="date" placeholder="Date de naissance" class="input input-bordered w-full mb-4" />
-        <p class="text-sm mb-4">
-          Déjà un compte ? <router-link to="/login" class="text-blue-500">Connectez-vous</router-link>
-        </p>
-        <button type="submit" class="btn btn-primary w-full">S'inscrire</button>
+        <input v-model="name" type="text" placeholder="Nom complet" class="input input-bordered w-full mt-4" />
+        <input v-model="email" type="email" placeholder="Email" class="input input-bordered w-full mt-4" />
+        <input v-model="username" type="text" placeholder="Nom d'utilisateur" class="input input-bordered w-full mt-4" />
+        <input v-model="password" type="password" placeholder="Mot de passe" class="input input-bordered w-full mt-4" />
+        <input v-model="telephone" type="tel" placeholder="Téléphone" class="input input-bordered w-full mt-4" />
+        <input v-model="birthdate" type="date" placeholder="Date de naissance" class="input input-bordered w-full mt-4" />
+        
+        <p v-if="errorMessage" class="text-error mb-4">{{ errorMessage }}</p>
+        <button type="submit" class="btn btn-primary w-full mt-5">S'inscrire</button>
       </form>
     </div>
   </div>
@@ -33,6 +32,7 @@ export default {
     const birthdate = ref<string>("");
     const router = useRouter();
     const authStore = useAuthStore();
+    const errorMessage = ref<string>("");
 
     const register = async () => {
       try {
@@ -40,11 +40,17 @@ export default {
         alert("Inscription réussie ! Veuillez vous connecter.");
         router.push({ name: "Login" });
       } catch (error: any) {
-        alert(error.message || "Erreur d'inscription.");
+        console.log(error.response.data.details);
+        
+        if (error.response.data.error) {
+          errorMessage.value = error.response.data.error;
+        } else {
+          errorMessage.value = "Erreur d'inscription.";
+        }
       }
     };
 
-    return { name,username, email, password, telephone, birthdate, register };
-  },
+    return { name, username, email, password, telephone, birthdate, register, errorMessage };
+  }
 };
 </script>
