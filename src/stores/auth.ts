@@ -37,8 +37,8 @@ export const useAuthStore = defineStore("auth", {
       telephone: string;
       birthdate: string;
       email: string;
-    }): Promise<void> {
-      await axios.post(
+    }): Promise<any> {
+      return await axios.post(
         "https://apichathouse.enzopenisson.duckdns.org/auth/register",
         data
       );
