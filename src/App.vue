@@ -10,7 +10,7 @@
         <!-- Displaying network status directly -->
         <div>Status: <b :class="clazz">{{ text }}</b></div>
 
-        <button type="button" v-if="isLogin()"  class="btn btn-link btn-ghost" @click="logout">
+        <button v-if="isLogin" class="btn btn-link btn-ghost" @click="logout">
           <font-awesome-icon icon="fa-solid fa-power-off" class="text-error" />
         </button>
       </div>
@@ -36,7 +36,7 @@ export default defineComponent({
 
     const authStore = useAuthStore();
     const router = useRouter();
-    const isLogin = authStore.isLogin;
+    const isLogin = computed(() => authStore.isLogin);
 
     const logout = async () => {
       await authStore.logout();

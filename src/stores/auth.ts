@@ -11,24 +11,36 @@ interface AuthState {
 export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
     contact: null,
-    token: localStorage.getItem("token"),
+    token: localStorage.getItem("token"), // Initialize from localStorage
   }),
   actions: {
-    // Login function
-    async login(credentials: {
-      email: string;
-      password: string;
-    }): Promise<void> {
+    async login(credentials: { email: string; password: string }): Promise<void> {
       const response = await axios.post<{ token: string; contact: Contact }>(
-        "https://apichathouse.enzopenisson.duckdns.org/auth/login",
-        credentials
+          "https://apichathouse.enzopenisson.duckdns.org/auth/login",
+          credentials
       );
 
-      this.token = response.data.token;
+      this.token = response.data.token; // Update the reactive state
       localStorage.setItem("token", this.token);
       axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
     },
+    async logout(): Promise<void> {
+      try {
+        await axios.post(
+            "https://apichathouse.enzopenisson.duckdns.org/auth/logout",
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+        );
+      } catch {}
 
+      this.token = null; // Update the reactive state
+      localStorage.removeItem("token");
+      delete axios.defaults.headers.common["Authorization"];
+    },
     // Register function
     async register(data: {
       fullname: string;
@@ -39,41 +51,21 @@ export const useAuthStore = defineStore("auth", {
       email: string;
     }): Promise<void> {
       await axios.post(
-        "https://apichathouse.enzopenisson.duckdns.org/auth/register",
-        data
+          "https://apichathouse.enzopenisson.duckdns.org/auth/register",
+          data
       );
     },
-
-    // Logout function
-    async logout(): Promise<void> {
-      try {
-        const response = await axios.post(
-          "https://apichathouse.enzopenisson.duckdns.org/auth/logout",
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        this.contact = null;
-        this.token = null;
-        localStorage.removeItem("token");
-        delete axios.defaults.headers.common["Authorization"];
-      } catch {}
-    },
-
     // Fetch contact function
     async fetchContact(): Promise<void> {
       if (this.token) {
         try {
           const response = await axios.get<Contact>(
-            "https://apichathouse.enzopenisson.duckdns.org/auth/profile",
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
+              "https://apichathouse.enzopenisson.duckdns.org/auth/profile",
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
           );
 
           this.contact = response.data;
@@ -82,9 +74,11 @@ export const useAuthStore = defineStore("auth", {
         }
       }
     },
-
-    isLogin(): boolean {
-      return !!localStorage.getItem("token");
+  },
+  getters: {
+    isLogin(state): boolean {
+      return !!state.token; // Reactively return the login state
     },
   },
 });
+

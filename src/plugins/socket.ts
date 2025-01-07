@@ -22,6 +22,10 @@ const connectSocket = () => {
     console.log("Disconnected from the server.");
   });
 
+  socket.on("contact_added", (data:any) => {
+      console.log("Contact ajouter", data);
+  });
+
   // Handle reconnect attempt event
   socket.on("reconnect_attempt", () => {
     console.log("Reconnecting...");
@@ -52,6 +56,21 @@ export const joinConversationRoom = (room: string) => {
   console.log("join room", room);
 };
 
+export const joinUserRoom = (userid: string|undefined) => {
+    if (!userid) return;
+    let roomid = "user_"+userid;
+    socket.emit("join_room", { roomid });
+    console.log("join room user", roomid);
+}
+
+
+export const leaveUserRoom = (userid: string|undefined) => {
+    if (!userid) return;
+    let roomid = "user_"+userid;
+    socket.emit("leave_room", { roomid });
+    console.log("leave room user", roomid);
+}
+
 // Quitter une salle de conversation
 export const leaveConversationRoom = (room: string) => {
   socket.emit("leave_room", { room });
@@ -72,7 +91,10 @@ export const resetSocket = () => {
 
 // when online reconnect socket
 window.addEventListener("online", () => {
-  resetSocket();
+  // verify if socket is disconnected
+  if (!socket.connected) {
+      resetSocket();
+  }
 });
 
 export default socket;
