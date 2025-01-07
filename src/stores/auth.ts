@@ -77,7 +77,7 @@ export const useAuthStore = defineStore("auth", {
   },
   getters: {
     isLogin(state): boolean {
-      return !!state.token; // Reactively return the login state
+      return !!state.token; // Reactively
     },
   },
 });
