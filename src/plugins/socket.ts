@@ -22,8 +22,8 @@ const connectSocket = () => {
     console.log("Disconnected from the server.");
   });
 
-  socket.on("contact_added", (data:any) => {
-      console.log("Contact ajouter", data);
+  socket.on("contact_added", (data: any) => {
+    console.log("Contact ajouter", data);
   });
 
   // Handle reconnect attempt event
@@ -32,17 +32,17 @@ const connectSocket = () => {
   });
 
   // Handle reconnect event
-  socket.on("reconnect", (attempt:any) => {
+  socket.on("reconnect", (attempt: any) => {
     console.log(`Reconnected on attempt ${attempt}.`);
   });
 
   // Handle error event
-  socket.on("connect_error", (error:any) => {
+  socket.on("connect_error", (error: any) => {
     console.log("Connection error:", error);
   });
 
   // Handle reconnect error event
-  socket.on("reconnect_error", (error:any) => {
+  socket.on("reconnect_error", (error: any) => {
     console.log("Reconnection error:", error);
   });
 };
@@ -56,20 +56,19 @@ export const joinConversationRoom = (room: string) => {
   console.log("join room", room);
 };
 
-export const joinUserRoom = (userid: string|undefined) => {
-    if (!userid) return;
-    let roomid = "user_"+userid;
-    socket.emit("join_room", { roomid });
-    console.log("join room user", roomid);
-}
+export const joinUserRoom = (userid: string | undefined) => {
+  if (!userid) return;
+  let roomid = "user_" + userid;
+  socket.emit("join_room", { roomid });
+  console.log("join room user", roomid);
+};
 
-
-export const leaveUserRoom = (userid: string|undefined) => {
-    if (!userid) return;
-    let roomid = "user_"+userid;
-    socket.emit("leave_room", { roomid });
-    console.log("leave room user", roomid);
-}
+export const leaveUserRoom = (userid: string | undefined) => {
+  if (!userid) return;
+  let roomid = "user_" + userid;
+  socket.emit("leave_room", { roomid });
+  console.log("leave room user", roomid);
+};
 
 // Quitter une salle de conversation
 export const leaveConversationRoom = (room: string) => {
@@ -93,7 +92,7 @@ export const resetSocket = () => {
 window.addEventListener("online", () => {
   // verify if socket is disconnected
   if (!socket.connected) {
-      resetSocket();
+    resetSocket();
   }
 });
 

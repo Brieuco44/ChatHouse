@@ -10,7 +10,7 @@
       </button>
 
       <!-- Chat Title -->
-      <h2 class="text-lg font-bold">Chat avec : {{ fullname }}</h2>
+      <h2 class="text-lg font-bold">Chat avec {{ fullname }}</h2>
     </div>
 
 
@@ -24,7 +24,8 @@
             <!-- Trois points -->
             <div class="" @click="openContextMenu(message)">
               <div class="dropdown dropdown-left dropdown-end">
-                <button class="text-xs opacity-50" tabindex="0" role="button"><font-awesome-icon icon="fa-solid fa-ellipsis" /></button>
+                <button class="text-xs opacity-50" tabindex="0" role="button"><font-awesome-icon
+                    icon="fa-solid fa-ellipsis" /></button>
                 <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                   <li>
                     <button @click="editMessage(message)" class="hover:text-yellow-400 mb-1 transition">
@@ -84,13 +85,8 @@
     <div class="w-full p-4 bg-base-100 sticky bottom-0 z-10">
       <div class="flex items-center space-x-2">
         <!-- Text Input -->
-        <input
-            v-model="messageText"
-            type="text"
-            @keypress.enter="sendMessage"
-            class="input input-bordered flex-1"
-            placeholder="Écrire un message..."
-        />
+        <input v-model="messageText" type="text" @keypress.enter="sendMessage" class="input input-bordered flex-1"
+          placeholder="Écrire un message..." />
 
         <!-- Send Button -->
         <button @click="sendMessage" class="btn btn-primary">
@@ -327,10 +323,10 @@ export default defineComponent({
         if (offlineRequests.length > 0 && isOnline.value) {
           console.log("Attempting to sync unsynced requests...");
           try {
-            await syncOfflineApiRequests(async ()  => {
-                  console.log("OUIIIIIIIIIII")
-                  await loadMessages();
-                }
+            await syncOfflineApiRequests(async () => {
+              console.log("OUIIIIIIIIIII")
+              await loadMessages();
+            }
             );
             console.log("All unsynced requests processed.");
           } catch (error) {
@@ -339,7 +335,7 @@ export default defineComponent({
         } else if (offlineRequests.length === 0) {
           console.log("No offline requests to sync.");
         }
-      }, 10000); // Check every 10 seconds
+      }, 5000); // Check every 5 seconds
     };
 
 

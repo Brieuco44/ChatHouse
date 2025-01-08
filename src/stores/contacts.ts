@@ -1,13 +1,15 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { Contact } from "@/types/contacts";
-import { getContactsAPI, addContactAPI, removeContactAPI } from "@/api/contacts";
-import socket from "@/plugins/socket";
-import { log } from "console";
+import {
+  getContactsAPI,
+  addContactAPI,
+  removeContactAPI,
+} from "@/api/contacts";
 
 export const useContactsStore = defineStore("contacts", () => {
   const contacts = ref<Contact[]>([]);
-  
+
   // Charger la liste des contacts
   const loadContacts = async () => {
     contacts.value = await getContactsAPI();

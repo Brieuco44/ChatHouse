@@ -5,11 +5,13 @@
       <form @submit.prevent="register">
         <input v-model="name" type="text" placeholder="Nom complet" class="input input-bordered w-full mt-4" />
         <input v-model="email" type="email" placeholder="Email" class="input input-bordered w-full mt-4" />
-        <input v-model="username" type="text" placeholder="Nom d'utilisateur" class="input input-bordered w-full mt-4" />
+        <input v-model="username" type="text" placeholder="Nom d'utilisateur"
+          class="input input-bordered w-full mt-4" />
         <input v-model="password" type="password" placeholder="Mot de passe" class="input input-bordered w-full mt-4" />
         <input v-model="telephone" type="tel" placeholder="Téléphone" class="input input-bordered w-full mt-4" />
-        <input v-model="birthdate" type="date" placeholder="Date de naissance" class="input input-bordered w-full mt-4" />
-        
+        <input v-model="birthdate" type="date" placeholder="Date de naissance"
+          class="input input-bordered w-full mt-4" />
+
         <p v-if="errorMessage" class="text-error mb-4">{{ errorMessage }}</p>
         <button type="submit" class="btn btn-primary w-full mt-5">S'inscrire</button>
       </form>
@@ -41,7 +43,7 @@ export default {
         router.push({ name: "Login" });
       } catch (error: any) {
         console.log(error.response.data.details);
-        
+
         if (error.response.data.error) {
           errorMessage.value = error.response.data.error;
         } else {

@@ -2,34 +2,24 @@
   <div class="home-page h-screen flex flex-col p-6 bg-base-100">
     <!-- Header -->
     <header class="mb-6">
-      <h1 class="text-3xl font-semibold text-gray-100">Bienvenue, {{ authStore.contact?.fullname }}</h1>
+      <h1 class="text-3xl font-semibold text-gray-100">👋 Bienvenue, {{ authStore.contact?.fullname }}</h1>
     </header>
 
     <!-- Search Section -->
     <section class="search-bar mb-6">
-      <input
-          v-model="searchQuery"
-          @input="searchContacts"
-          type="text"
-          placeholder="Rechercher des contacts..."
-          class="input input-bordered w-full rounded-lg px-4 py-2 shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
-      />
+      <input v-model="searchQuery" @input="searchContacts" type="text" placeholder="Rechercher des contacts..."
+        class="input input-bordered w-full rounded-lg px-4 py-2 shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary" />
     </section>
 
     <!-- Search Results -->
     <section v-if="searchResults.length" class="search-results mb-6 bg-gray-800 text-white rounded-lg shadow p-4">
       <h3 class="text-xl font-semibold text-white mb-4">Résultats de recherche</h3>
       <ul>
-        <li
-            v-for="result in searchResults"
-            :key="result.id"
-            class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-700"
-        >
+        <li v-for="result in searchResults" :key="result.id"
+          class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-700">
           <span class="text-gray-200">{{ result.username }}</span>
-          <button
-              @click="addContact(result.id)"
-              class="btn btn-primary text-sm px-4 py-2 rounded-lg bg-primary text-gray-800 hover:bg-primary-dark"
-          >
+          <button @click="addContact(result.id)"
+            class="btn btn-primary text-sm px-4 py-2 rounded-lg bg-primary text-gray-800 hover:bg-primary-dark">
             Ajouter
           </button>
         </li>
@@ -40,23 +30,16 @@
     <section class="contacts-list bg-gray-800 text-white rounded-lg shadow p-4">
       <h2 class="text-xl font-semibold text-white mb-4">Mes contacts :</h2>
       <ul>
-        <li
-            v-for="contact in contacts"
-            :key="contact.id"
-            class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-700"
-        >
+        <li v-for="contact in contacts" :key="contact.id"
+          class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-700">
           <span class="text-gray-200">{{ contact.fullname }}</span>
           <div class="flex space-x-2">
-            <button
-                @click="openChat(contact.room, contact.id, contact.fullname)"
-                class="btn btn-primary text-sm px-4 py-2 rounded-lg bg-primary text-gray-800 hover:bg-primary-dark"
-            >
+            <button @click="openChat(contact.room, contact.id, contact.fullname)"
+              class="btn btn-primary text-sm px-4 py-2 rounded-lg bg-primary text-gray-800 hover:bg-primary-dark">
               Discussion
             </button>
-            <button
-                @click="removeContact(contact.id)"
-                class="btn btn-danger text-sm px-4 py-2 rounded-lg bg-red-500 text-gray-800 hover:bg-red-600"
-            >
+            <button @click="removeContact(contact.id)"
+              class="btn btn-danger text-sm px-4 py-2 rounded-lg bg-red-500 text-gray-800 hover:bg-red-600">
               Supprimer
             </button>
           </div>
@@ -69,13 +52,13 @@
 
 
 <script lang="ts">
-import {ref, onMounted, computed, onBeforeUnmount} from "vue";
+import { ref, onMounted, computed, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import { useContactsStore } from "@/stores/contacts";
 import { useAuthStore } from "@/stores/auth";
 import { Contact } from "@/types/contacts";
 import { searchContactAPI } from "@/api/contacts";
-import socket, {joinUserRoom, leaveUserRoom} from "@/plugins/socket";
+import socket, { joinUserRoom, leaveUserRoom } from "@/plugins/socket";
 
 export default {
   name: "dashboard",
@@ -86,10 +69,10 @@ export default {
     const searchResults = ref<Contact[]>([]);
     const contacts = computed(() => contactsStore.contacts);
 
-    onMounted(() => { 
-      contactsStore.loadContacts(); 
+    onMounted(() => {
+      contactsStore.loadContacts();
     });
- 
+
     const searchContacts = async () => {
       if (searchQuery.value.trim().length < 2) {
         searchResults.value = [];
@@ -127,8 +110,8 @@ export default {
       }
     };
 
-    const openChat = (room: string|null, contactId: string|null, fullname: string) => {
-      router.push({ name: "Chat", params: {room: room, id: contactId, fullname: fullname } });
+    const openChat = (room: string | null, contactId: string | null, fullname: string) => {
+      router.push({ name: "Chat", params: { room: room, id: contactId, fullname: fullname } });
     };
 
     // onMounted(() => {

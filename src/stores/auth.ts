@@ -14,10 +14,13 @@ export const useAuthStore = defineStore("auth", {
     token: localStorage.getItem("token"), // Initialize from localStorage
   }),
   actions: {
-    async login(credentials: { email: string; password: string }): Promise<void> {
+    async login(credentials: {
+      email: string;
+      password: string;
+    }): Promise<void> {
       const response = await axios.post<{ token: string; contact: Contact }>(
-          "https://apichathouse.enzopenisson.duckdns.org/auth/login",
-          credentials
+        "https://apichathouse.enzopenisson.duckdns.org/auth/login",
+        credentials
       );
 
       this.token = response.data.token; // Update the reactive state
@@ -27,13 +30,13 @@ export const useAuthStore = defineStore("auth", {
     async logout(): Promise<void> {
       try {
         await axios.post(
-            "https://apichathouse.enzopenisson.duckdns.org/auth/logout",
-            {},
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
+          "https://apichathouse.enzopenisson.duckdns.org/auth/logout",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
       } catch {}
 
@@ -51,8 +54,8 @@ export const useAuthStore = defineStore("auth", {
       email: string;
     }): Promise<void> {
       await axios.post(
-          "https://apichathouse.enzopenisson.duckdns.org/auth/register",
-          data
+        "https://apichathouse.enzopenisson.duckdns.org/auth/register",
+        data
       );
     },
     // Fetch contact function
@@ -60,12 +63,12 @@ export const useAuthStore = defineStore("auth", {
       if (this.token) {
         try {
           const response = await axios.get<Contact>(
-              "https://apichathouse.enzopenisson.duckdns.org/auth/profile",
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-              }
+            "https://apichathouse.enzopenisson.duckdns.org/auth/profile",
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
           );
 
           this.contact = response.data;
@@ -81,4 +84,3 @@ export const useAuthStore = defineStore("auth", {
     },
   },
 });
-
