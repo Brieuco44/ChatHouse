@@ -42,8 +42,6 @@ export default {
         alert("Inscription réussie ! Veuillez vous connecter.");
         router.push({ name: "Login" });
       } catch (error: any) {
-        console.log(error.response.data.details);
-
         if (error.response.data.error) {
           errorMessage.value = error.response.data.error;
         } else {

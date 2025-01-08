@@ -177,9 +177,6 @@ export default defineComponent({
 
       try {
         const response = await sendMessage(receiverId, text, idoffline);
-        // messages.value.push(text); // Ajoute le message immédiatement
-        //console.log(messages.value);
-
       } catch (error) {
         console.error("Failed to send message:", error);
       }
@@ -188,8 +185,6 @@ export default defineComponent({
     // Recevoir un message en temps réel
     const receiveMessage = (message: any) => {
       // if offline add to the chat
-      console.log("Received message:", message);
-
       if (
         (message.sender_id === currentUserId && message.receiver_id === receiverId) ||
         (message.receiver_id === currentUserId && message.sender_id === receiverId)
@@ -208,7 +203,6 @@ export default defineComponent({
     };
 
     const receiveUpdateMessage = (editEvent: any) => {
-      console.log("Received edit event:", editEvent);
 
       // Extract relevant data from the emitted event
       const { message_id, new_text, edited } = editEvent;

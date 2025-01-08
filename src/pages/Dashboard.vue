@@ -88,7 +88,6 @@ export default {
 
     const addContact = async (contactId: string) => {
       try {
-        console.log("Adding contact", contactId);
 
         // Wait for the room join confirmation
         joinUserRoom(contactId);
@@ -114,37 +113,7 @@ export default {
     const openChat = (room: string | null, contactId: string | null, fullname: string) => {
       router.push({ name: "Chat", params: { room: room, id: contactId, fullname: fullname } });
     };
-
-    // onMounted(() => {
-    //   // join my room
-    //   const authStore = useAuthStore();
-    //   joinUserRoom(authStore.contact?.id); // Join user's personal room
-    //
-    //
-    //   // Listen for contact_added event
-    //   socket.on("contact_added", (data:any) => {
-    //     console.log("Received contact_added event:", data);
-    //     // const existingContact = contactsStore.contacts.find(
-    //     //     (contact) => contact.id === data.contact_id
-    //     // );
-    //     //
-    //     // if (!existingContact) {
-    //     //   contactsStore.contacts.push({
-    //     //     id: data.contact_id,
-    //     //     fullname: data.fullname || "Utilisateur inconnu",
-    //     //     username: data.username || "anonyme",
-    //     //     room: data.room || null,
-    //     //   } as Contact);
-    //     // }
-    //   });
-    //
-    //   // Clean up listeners on unmount
-    //   onBeforeUnmount(() => {
-    //     socket.off("contact_added");
-    //     socket.off("contact_removed");
-    //   });
-    // });
-
+    
     return {
       searchQuery,
       searchResults,

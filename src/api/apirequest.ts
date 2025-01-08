@@ -25,7 +25,6 @@ export const syncOfflineApiRequests = async (onComplete: () => void) => {
     console.log(`Syncing request to ${request.url}`);
     try {
       let result = await sendApiRequest(request);
-      console.log(result);
       console.log(`Synced request to ${request.url}`);
       // remove request from offline storage
       offlineRequests.splice(offlineRequests.indexOf(request), 1);
@@ -51,8 +50,6 @@ const sendApiRequest = async (request: any) => {
       data: body,
     });
     console.log(`API request to ${url} successful`);
-
-    console.log(response.data);
     return response.data;
   } catch (error: any) {
     // Check if error.response is defined
@@ -93,7 +90,6 @@ const apiRequest = async (
   method: string = "POST",
   body: any = {}
 ) => {
-  //console.log(isOnline.value);  // Reactive check for network status
   if (isOnline.value) {
     return sendApiRequest({ url, method, body });
   } else {

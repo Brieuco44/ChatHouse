@@ -13,8 +13,6 @@ export const useContactsStore = defineStore("contacts", () => {
   // Charger la liste des contacts
   const loadContacts = async () => {
     contacts.value = await getContactsAPI();
-    console.log("loadContacts called");
-    console.log("Updated contacts:", contacts.value);
   };
 
   // Ajouter un contact
