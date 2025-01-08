@@ -33,12 +33,6 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
           },
-          {
-            src: '/icons/maskable-icon-192x192.png', // Add maskable icon for better UX
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
         ],
       },
       strategies: 'generateSW', // Use the generateSW strategy for optimal caching
@@ -70,9 +64,20 @@ export default defineConfig({
       },
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        entryFileNames: 'assets/[name].[hash].js', // Customize JS file naming
+        chunkFileNames: 'assets/[name].[hash].js', // Customize chunk naming
+        assetFileNames: 'assets/[name].[hash].[ext]'ui, // Customize asset naming
+      },
+    },
+    outDir: 'dist', // Ensure the output directory is set to 'dist'
+    emptyOutDir: true, // Clears the directory before building
+  },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(__dirname, "./src"), // Ensure this matches your source directory
     },
   },
 })
