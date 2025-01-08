@@ -79,15 +79,10 @@ const sendApiRequest = async (request: any) => {
   }
 };
 
-// // Event listener for network status
-// window.addEventListener('online', () => {
-//     console.log("Network is back online, syncing messages...");
-//     if (isOnline.value) {
-//         syncOfflineApiRequests(() => {
-//             console.log("Offline sync complete!");
-//         })
-//     }
-// });
+// Event listener for network status
+window.addEventListener('online', () => {
+    console.log("Network is back online, syncing messages...");
+});
 
 window.addEventListener("offline", () => {
   console.log("Network is offline, saving messages locally...");

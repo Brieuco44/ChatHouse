@@ -8,9 +8,9 @@ export default defineConfig({
   plugins: [
     vue(),
     VitePWA({
-      registerType: 'autoUpdate',
       devOptions: {
         enabled: false,
+        type: 'module',
         /* other options */
       },
       manifest: {
