@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col h-screen">
     <!-- Header -->
-    <div class="header  p-4 flex items-center space-x-4 ">
+    <div class="header p-4 flex items-center space-x-4">
       <!-- Back Arrow -->
-      <button @click="quitChat" class=" hover:text-base-500">
+      <button @click="quitChat" class="hover:text-base-500">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -13,10 +13,9 @@
       <h2 class="text-lg font-bold">Chat avec {{ fullname }}</h2>
     </div>
 
-
     <!-- Messages -->
     <div class="flex-1 p-4 overflow-y-auto mb-16 flex flex-col-reverse">
-      <div v-for="message in messages" :key="message.id" class="mb-4 ">
+      <div v-for="message in messages" :key="message.id" class="mb-4 transition-all duration-500 opacity-0 animate-fadeInUp">
         <!-- Sent Message -->
         <div v-if="message.sender_id === currentUserId" class="chat chat-end">
           <div class="chat-header flex justify-between gap-1">
@@ -24,8 +23,9 @@
             <!-- Trois points -->
             <div class="" @click="openContextMenu(message)">
               <div class="dropdown dropdown-left dropdown-end">
-                <button class="text-xs opacity-50" tabindex="0" role="button"><font-awesome-icon
-                    icon="fa-solid fa-ellipsis" /></button>
+                <button class="text-xs opacity-50" tabindex="0" role="button">
+                  <font-awesome-icon icon="fa-solid fa-ellipsis" />
+                </button>
                 <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                   <li>
                     <button @click="editMessage(message)" class="hover:text-yellow-400 mb-1 transition">
@@ -56,11 +56,11 @@
         </div>
 
         <!-- Received Message -->
-        <div v-else class="chat chat-start transition-shadow duration-300 ease-in-out">
+        <div v-else class="chat chat-start transition-shadow duration-300 ease-in-out opacity-0 animate-fadeInLeft">
           <div class="chat-header">
             <span class="text-xs opacity-50">{{ formatDate(message.date) }}</span>
           </div>
-          <div class="chat-bubble ">
+          <div class="chat-bubble">
             {{ message.text }}
           </div>
           <div class="chat-footer opacity-50">
@@ -75,7 +75,7 @@
       <div class="flex items-center space-x-2">
         <!-- Text Input -->
         <input v-model="messageText" type="text" @keypress.enter="sendMessage" class="input input-bordered flex-1"
-          placeholder="Écrire un message..." />
+               placeholder="Écrire un message..." />
 
         <!-- Send Button -->
         <button @click="sendMessage" class="btn btn-primary">
@@ -313,7 +313,6 @@ export default defineComponent({
           console.log("Attempting to sync unsynced requests...");
           try {
             await syncOfflineApiRequests(async () => {
-              console.log("OUIIIIIIIIIII")
               await loadMessages();
             }
             );
@@ -371,3 +370,34 @@ export default defineComponent({
 });
 
 </script>
+<style scoped>
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-fadeInLeft {
+  animation: fadeInLeft 0.5s ease-out forwards;
+}
+</style>
