@@ -12,6 +12,8 @@ RUN npm i -g serve
 
 COPY . .
 
+CMD rm -rf dist
+
 RUN npm run build
 
 EXPOSE 3000
