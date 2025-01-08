@@ -39,24 +39,27 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/api\.chathouse\.com\/.*$/, // Cache API calls
-            handler: 'NetworkFirst',
+            urlPattern: /\/index\.html$/, // Assurez-vous de cacher l'index
+            handler: 'StaleWhileRevalidate', // Fournit une copie du cache si possible
             options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24, // Cache for 1 day
-              },
+              cacheName: 'html-cache',
             },
           },
           {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico)$/, // Cache static assets
+            urlPattern: /\.(?:js|css)$/, // Cache JS et CSS
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'static-resources',
+            },
+          },
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico)$/, // Cache les images
             handler: 'CacheFirst',
             options: {
               cacheName: 'image-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // Cache for 30 days
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 jours
               },
             },
           },
