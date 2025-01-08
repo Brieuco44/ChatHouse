@@ -69,7 +69,7 @@ export default defineConfig({
       output: {
         entryFileNames: 'assets/[name].[hash].js', // Customize JS file naming
         chunkFileNames: 'assets/[name].[hash].js', // Customize chunk naming
-        assetFileNames: 'assets/[name].[hash].[ext]'ui, // Customize asset naming
+        assetFileNames: 'assets/[name].[hash].[ext]', // Customize asset naming
       },
     },
     outDir: 'dist', // Ensure the output directory is set to 'dist'
