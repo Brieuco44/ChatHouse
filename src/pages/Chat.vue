@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col h-screen">
     <!-- Header -->
-    <div class="header text-white p-4 flex items-center space-x-4 ">
+    <div class="header  p-4 flex items-center space-x-4 ">
       <!-- Back Arrow -->
-      <button @click="quitChat" class="text-white hover:text-gray-300">
+      <button @click="quitChat" class=" hover:text-base-500">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -66,17 +66,6 @@
           <div class="chat-footer opacity-50">
             <p v-if="message.edited" class="text-xs">edité</p>
           </div>
-        </div>
-
-        <!-- Menu contextuel -->
-        <div v-if="contextMenuMessageId === message.id"
-          class="absolute top-0 right-full mr-2 flex flex-col bg-gray-800 text-white p-2 rounded shadow z-20">
-          <button @click="editMessage(message)" class="hover:text-yellow-400 mb-1 transition">
-            Modifier
-          </button>
-          <button @click="Supprmessage(message.id)" class="hover:text-red-500 transition">
-            Supprimer
-          </button>
         </div>
       </div>
     </div>
