@@ -10,10 +10,13 @@ const saveOfflineApiRequest = (request: any) => {
     localStorage.setItem("offlineApiRequests", JSON.stringify(offlineRequests));
 };
 
-const syncOfflineApiRequests = async (room:string|null) => {
+export const syncOfflineApiRequests = async (onComplete: () => void) => {
     const offlineRequests = JSON.parse(localStorage.getItem("offlineApiRequests") || "[]");
 
-    for (const request of offlineRequests) {
+    // Track if offlineRequests was initially non-empty
+    const wasNotEmpty = offlineRequests.length > 0;
+
+    for (const request of [...offlineRequests]) { // Use a copy to avoid mutation issues
         console.log(`Syncing request to ${request.url}`);
         try {
             let result = await sendApiRequest(request);
@@ -27,11 +30,12 @@ const syncOfflineApiRequests = async (room:string|null) => {
     }
 
     localStorage.setItem("offlineApiRequests", JSON.stringify(offlineRequests));
-    if (room != null){
-        socket.emit("reload_messages", room);
+
+    if (wasNotEmpty && offlineRequests.length === 0) {
+        console.log("All offline requests have been synced.");
+        onComplete(); // Call the callback when the list was initially non-empty and is now empty
     }
 };
-
 const sendApiRequest = async (request: any) => {
     const { url, method, body } = request;
 
@@ -69,13 +73,15 @@ const sendApiRequest = async (request: any) => {
 
 };
 
-// Event listener for network status
-window.addEventListener('online', () => {
-    console.log("Network is back online, syncing messages...");
-    if (isOnline.value) {
-        syncOfflineApiRequests(null)
-    }
-});
+// // Event listener for network status
+// window.addEventListener('online', () => {
+//     console.log("Network is back online, syncing messages...");
+//     if (isOnline.value) {
+//         syncOfflineApiRequests(() => {
+//             console.log("Offline sync complete!");
+//         })
+//     }
+// });
 
 window.addEventListener('offline', () => {
     console.log("Network is offline, saving messages locally...");
@@ -89,27 +95,6 @@ const apiRequest = async (url: string, method: string = "POST", body: any = {}) 
         saveOfflineApiRequest({ url, method, body });
         console.log(`Request to ${url} saved locally`);
     }
-};
-
-export const watchLocalStorage = (room:string) => {
-    setInterval(async () => {
-        const offlineRequests = JSON.parse(localStorage.getItem("offlineApiRequests") || "[]");
-
-        // Only proceed if there are unsynced requests and the user is online
-        if (offlineRequests.length > 0 && isOnline.value) {
-            console.log("Attempting to sync unsynced requests...");
-            try {
-                await syncOfflineApiRequests(room);
-
-
-                console.log("All unsynced requests processed.");
-            } catch (error) {
-                console.error("Error syncing offline requests:", error);
-            }
-        } else if (offlineRequests.length === 0) {
-            console.log("No offline requests to sync.");
-        }
-    }, 10000); // Check every 10 seconds
 };
 
 export default apiRequest;

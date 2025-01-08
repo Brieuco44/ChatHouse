@@ -49,7 +49,7 @@
           <div class="chat-footer opacity-50">
             <p v-if="message.edited" class="text-xs ">edité</p>
             <p v-if="message.id.includes('offline-')" class="text-xs text-red-400 ">
-              Echec de l'envoie
+              Echec de l'envoi
             </p>
           </div>
         </div>
@@ -110,7 +110,7 @@ import { sendMessage, fetchConversation, deleteMessage, updateMessage } from "@/
 import { useAuthStore } from "@/stores/auth";
 import { Message } from "@/types/messages";
 import { useNetwork, useWebNotification } from "@vueuse/core";
-import { watchLocalStorage } from "@/api/apirequest";
+import { syncOfflineApiRequests } from "@/api/apirequest";
 
 import router from "@/router";
 
@@ -319,6 +319,30 @@ export default defineComponent({
       messageText.value = draftMessages[conversationId] || "";
     };
 
+    const watchLocalStorage = () => {
+      setInterval(async () => {
+        const offlineRequests = JSON.parse(localStorage.getItem("offlineApiRequests") || "[]");
+
+        // Only proceed if there are unsynced requests and the user is online
+        if (offlineRequests.length > 0 && isOnline.value) {
+          console.log("Attempting to sync unsynced requests...");
+          try {
+            await syncOfflineApiRequests(async ()  => {
+                  console.log("OUIIIIIIIIIII")
+                  await loadMessages();
+                }
+            );
+            console.log("All unsynced requests processed.");
+          } catch (error) {
+            console.error("Error syncing offline requests:", error);
+          }
+        } else if (offlineRequests.length === 0) {
+          console.log("No offline requests to sync.");
+        }
+      }, 10000); // Check every 10 seconds
+    };
+
+
 
     watch(
       () => messageText.value,
@@ -329,7 +353,7 @@ export default defineComponent({
       loadDraft();
       loadMessages(); // Assume this function loads previously saved messages
       joinConversationRoom(conversationId);
-      watchLocalStorage(conversationId);
+      watchLocalStorage();
 
       socket.on("new_message", receiveMessage);
       socket.on("edit_message", receiveUpdateMessage);
